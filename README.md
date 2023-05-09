@@ -1,3 +1,5 @@
 # admin-voucher-ui
 npm install
-spm start
+
+</br>
+npm start
