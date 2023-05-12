@@ -1,18 +1,11 @@
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-
-import DialogTitle from '@mui/material/DialogTitle';
 
 import { useState, useEffect } from 'react';
 // @mui
 import {
   Card,
-  
   Table,
   Stack,
   Paper,
@@ -26,14 +19,11 @@ import {
   IconButton,
   TableContainer,
   TablePagination,
-  TextField,
-  MenuItem,
 } from '@mui/material';
 
 // components
 import Iconify from '../../components/iconify';
 import Scrollbar from '../../components/scrollbar';
-import Label from '../../components/label';
 // sections
 import { UserListHead, UserListToolbar } from '../../sections/@dashboard/user';
 // mock
@@ -41,19 +31,21 @@ import { UserListHead, UserListToolbar } from '../../sections/@dashboard/user';
 
 import adminService from '../../services/admin.service';
 // ----------------------------------------------------------------------
-
+const avatar ={
+  avatarMaleUrl: `/assets/images/avatars/avatar_2.jpg`,
+  avatarFemaleUrl: `/assets/images/avatars/avatar_1.jpg`,
+  avatarOthersUrl: `/assets/images/avatars/avatar_3.jpg`,
+}
 const TABLE_HEAD = [
+  { id: 'userName', label: 'UserName', alignRight: false },
   { id: 'name', label: 'Name', alignRight: false },
-  { id: 'address', label: 'Address', alignRight: false },
-  { id: 'description', label: 'Description', alignRight: false },  
-  { id: 'openTime', label: 'openTime', alignRight: false },
-  { id: 'closeTime', label: 'CloseTime', alignRight: false },
-  { id: 'isApproved', label: 'IsApproved', alignRight: false },
-  { id: 'isEnable', label: 'IsEnable', alignRight: false },
+  { id: 'dateOfBirth', label: 'DateOfBirth', alignRight: false },
+  { id: 'partnerType', label: 'PartnerType', alignRight: false },
+  { id: 'isVerified', label: 'Verified', alignRight: false },
+  { id: 'store', label: 'Store', alignRight: false },
   { id: '' },
 ];
 
-const statusApprove = ["Approve             ", "Reject          "]
 // ----------------------------------------------------------------------
 
 function descendingComparator(a, b, orderBy) {
@@ -81,12 +73,12 @@ function applySortFilter(array, comparator, query) {
   });
     
   if (query) {
-    return filter(array, (_user) => _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    return filter(array, (_user) => _user.userName.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   } 
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function Store() {  
+export default function User() {  
 
   const [page, setPage] = useState(0);
 
@@ -94,25 +86,16 @@ export default function Store() {
 
   const [selected, setSelected] = useState([]);
 
-  const [orderBy, setOrderBy] = useState('name');
+  const [orderBy, setOrderBy] = useState('userName');
 
   const [filterName, setFilterName] = useState('');
 
-  const [stores, setStores] = useState([])
-
-  const [storeId, setStoreId] = useState("");
+  const [partners, setPartners] = useState([])
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  
-  const [isApprove, setIsApprove] = useState("");
 
-  const [open, setOpen] = useState(false);
-
-  const [isEdit, setIsEdit] = useState(false)
-
-  const handleClickEdit = (id, ) => {
-    alert(`edit ${id}  `)
-    
+  const handleClickEdit = (id, name) => {
+    alert(`edit ${id}  ${name}`)
   };
   const handleClickDelete = (id) => {
     alert(`delete ${id}`)
@@ -143,86 +126,39 @@ export default function Store() {
     alert("New OK")
     
   }
-  const handleClickEditApprove = (id) =>{    
-    setStoreId(id);
-    setOpen(true)
-    
-  }
-  const handleChangeStatusApprove = (event) =>{
-    setIsApprove(event.target.value)
-  }
-  const handleClickCancel = () => {
-    setOpen(false);
-    
-  }
-  const handleClickSubmit = () => {
-    if(isApprove) {
-      if(isApprove === statusApprove[0]) {
-        adminService.StoreApproveStoreId(storeId).then(
-          response => {
-            if(response.data && response.status === 200 && response.data.success) {
-              alert("success");
-              setOpen(false)
-              setIsEdit(true)
-            }
-          }
-        )
-        
-      } 
-      else if(isApprove === statusApprove[1]) {
-        adminService.StoreRejecteStoreId(storeId).then(
-          response => {
-            if(response.data && response.status === 200 && response.data.success) {
-              alert("success");
-              setOpen(false)
-              setIsEdit(true)
-            }
-            
-          }
-        )
-        
-      }
-    } else {
-      alert("Please choose Status");
-    }
-    
-    
-  }
-  const handleClose = () => {
-    setOpen(false)    
-  }
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - stores.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - partners.length) : 0;
 
-  const filteredUsers = applySortFilter(stores, getComparator(order, orderBy), filterName);
+  const filteredUsers = applySortFilter(partners, getComparator(order, orderBy), filterName);
 
   const isNotFound = !filteredUsers.length && !!filterName;
-  useEffect(()=>{
-    setIsEdit(false);
-    adminService.StoreAll().then(
-      response =>{
-        if(response.data && response.status === 200 && response.data.success) {
-          console.log(response.data.data.stores)
-          setStores(response.data.data.stores)
+  useEffect(() =>{
+    adminService.endUserAll().then(
+      response => {
+        if(response && response.status === 200 && response.data.success && response.data.data) {
+          console.log("partner ==>",response.data.data.endUsers)
+          setPartners(response.data.data.endUsers)
         }
         
+      }, error =>{
+        console.log(error)
       }
     )
-  },[isEdit])
+  },[])
 
   return (
     <>
       <Helmet>
-        <title> Stores  </title>
+        <title> EndUser  </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-          Stores
+          EndUser
           </Typography>
           <Button onClick={handleClickNew} variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-            New Store
+            New EndUser
           </Button>
         </Stack>
 
@@ -236,51 +172,53 @@ export default function Store() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={stores.length}
+                  rowCount={partners.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   
                 />
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id,  name, address, description, isApproved
-                      , isEnable, openTime, closeTime } = row;
-                    const selectedUser = selected.indexOf(name) !== -1;
+                    const { id, userName, name, dateOfBirth,  isVerified, store, gender } = row;
+                    const selectedUser = selected.indexOf(userName) !== -1;
 
                     return (
                       <TableRow hover key={id} tabIndex={-1} role="checkbox" selected={selectedUser}>
-
+                         <TableCell component="th" scope="row" padding="none">
+                          <Stack direction="row" alignItems="center" spacing={2}>
+                            {gender === 'Male' &&(
+                              <Avatar alt={userName} src={avatar.avatarMaleUrl} />
+                            )}
+                            {gender === 'Female' &&(
+                              <Avatar alt={userName} src={avatar.avatarFemaleUrl} />
+                            )}
+                            {gender === 'Other' &&(
+                              <Avatar alt={userName} src={avatar.avatarOthersUrl} />
+                            )}
+                            <Typography variant="subtitle2" noWrap>
+                              {userName}
+                            </Typography>
+                          </Stack>
+                        </TableCell>
                          <TableCell align="left">
                           {name} 
                          </TableCell>
+                         <TableCell align="left">
+                          {dateOfBirth.year} {"-"} {dateOfBirth.month}{"-"}{dateOfBirth.day}
+                         </TableCell>
                          
                          <TableCell align="left">
-                          {address.ward.name}{" "}{address.street}
+                          {isVerified}
                          </TableCell>
                          <TableCell align="left">
-                          {description}
-                         </TableCell>
-                         <TableCell align="left">
-                          {openTime.hour}{":"}{openTime.minute}
-                         </TableCell>
-                         <TableCell align="left">
-                         {closeTime.hour}{":"}{closeTime.minute}
-                         </TableCell>
-                         <TableCell align="left">
-                          {((isApproved === null ) ? 
-                          (<Button className='btn btn-primary' onClick={() => handleClickEditApprove(id)}>NeedApprovel</Button>):
-                          (isApproved === true)? <Button className='btn btn-success' onClick={() => handleClickEditApprove(id)}>Approved</Button> : 
-                          <Button className='btn btn-warning' onClick={() => handleClickEditApprove(id)}>Rejected</Button>)}
-                         </TableCell>
-                         <TableCell align="left">
-                          {isEnable ? 'Yes' : 'No'}
+                          {store}
                          </TableCell>
                         
                         <TableCell align="right">                        
-                          <IconButton size="large" color="inherit" onClick={()=>handleClickEdit(id)}>
+                          <IconButton size="large" color="inherit" onClick={()=>handleClickEdit(id, userName)}>
                           <Iconify icon={'eva:edit-fill'}  sx={{ mr: 2 }} />                          
                           </IconButton>
-                          <IconButton size="large" color="inherit" onClick={()=>handleClickDelete(id)}>
+                          <IconButton size="large" color="inherit" onClick={()=>handleClickDelete(id, userName)}>
                           <Iconify  icon={'eva:trash-2-outline'} color="red" sx={{ mr: 2 }} />                        
                           </IconButton>
                         </TableCell>
@@ -324,7 +262,7 @@ export default function Store() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={stores.length}
+            count={partners.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
@@ -332,38 +270,6 @@ export default function Store() {
           />
         </Card>
       </Container>
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Edit Approved</DialogTitle>
-        <DialogContent> 
-        <DialogContentText>
-            Please choose Approved or Rejected.
-          </DialogContentText>
-        
-        <TextField
-                  style={{ marginTop: 20 }}
-                  label="Status"
-                  fullWidth
-                  select
-                  variant="outlined"
-                  value={isApprove}
-                  id="country"                  
-                  margin="dense"
-                  onChange= {handleChangeStatusApprove}
-                >
-                  {statusApprove  && statusApprove.map((option) => (
-             <MenuItem key={option} value={option}>
-              {option}
-            </MenuItem>
-          )
-          )}
-            </TextField>  
-        
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClickCancel}>Cancel</Button>
-          <Button onClick={handleClickSubmit}>Submit</Button>
-        </DialogActions>
-      </Dialog>
       
     </>
   );

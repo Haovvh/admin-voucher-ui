@@ -4,7 +4,6 @@ import DashboardLayout from './layouts/dashboard';
 import SimpleLayout from './layouts/simple';
 
 import Login from './pages/Login';
-import RegisterPage from './pages/RegisterPage';
 import Page404 from './pages/Page404';
 import Store from './pages/store/stores';
 import Profile from './pages/Profile';
@@ -12,9 +11,9 @@ import Logout from './pages/Logout';
 import DashboardAppPage from './pages/DashboardAppPage';
 import Game from './pages/games/Games';
 import Partner from './pages/partners/Partners';
-
+import User from './pages/user/Users';
 import Conpaign from './pages/conpaigns/conpaign';
-import Service from './services/admin.service';
+import Service from './services/header.service';
 import PageRole from './pages/PageRole';
 
 
@@ -34,6 +33,7 @@ export default function Router() {
         { path: 'partner', element: (isUser)? <Partner /> :<PageRole/>},
         { path: 'store', element: (isUser)? <Store /> :<PageRole/>},
         { path: 'profile', element: (isUser)? <Profile /> :<PageRole/>},
+        { path: 'user', element: (isUser)? <User /> :<PageRole/>},
         { path: 'logout', element: (isUser)? <Logout /> :<PageRole/>},
         
       ],
@@ -41,13 +41,7 @@ export default function Router() {
     {
       path: 'login',
       element: <Login />,
-    },    
-    
-    {
-      path: 'register',
-      element: <RegisterPage />,
-    },
-    
+    }, 
     {
       element: <SimpleLayout />,
       children: [

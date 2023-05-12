@@ -79,7 +79,7 @@ export default function Nav({ openNav, onCloseNav }) {
         </Link>
       </Box>
 
-      <NavSection data={navConfig} />
+      <NavSection  data={navConfig} />
 
       <Box sx={{ flexGrow: 1 }} />
 
@@ -94,7 +94,7 @@ export default function Nav({ openNav, onCloseNav }) {
   
 
   return (
-    <Box
+    <Box 
       component="nav"
       sx={{
         flexShrink: { lg: 0 },

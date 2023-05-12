@@ -9,13 +9,14 @@ import { StyledChart } from './components/chart';
 import ScrollToTop from './components/scroll-to-top';
 import 'bootstrap/dist/css/bootstrap.min.css'
 
+
 // ----------------------------------------------------------------------
 
 export default function App() {
   return (
     <HelmetProvider>
       <BrowserRouter>
-        <ThemeProvider>
+        <ThemeProvider >
           <ScrollToTop />
           <StyledChart />
           <Router />

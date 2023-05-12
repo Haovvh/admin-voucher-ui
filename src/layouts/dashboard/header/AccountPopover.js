@@ -1,39 +1,44 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 // @mui
 import { alpha } from '@mui/material/styles';
 import { Box, Divider, Typography, Stack, MenuItem, Avatar, IconButton, Popover } from '@mui/material';
 // mocks_
 import account from '../../../_mock/account';
+import headerService from '../../../services/header.service';
 
 // ----------------------------------------------------------------------
 
-const MENU_OPTIONS = [
-  {
-    label: 'Home',
-    icon: 'eva:home-fill',
-  },
-  {
-    label: 'Profile',
-    icon: 'eva:person-fill',
-  },
-  {
-    label: 'Settings',
-    icon: 'eva:settings-2-fill',
-  },
-];
+
 
 // ----------------------------------------------------------------------
 
 export default function AccountPopover() {
   const [open, setOpen] = useState(null);
-
+  const [userInfo, setUserInfo] = useState({})
   const handleOpen = (event) => {
     setOpen(event.currentTarget);
   };
+  const handleClickHome = () =>{
+    window.location.assign('/')
+  }
+  const handleClickProfile = () =>{
+    window.location.assign('/profile')
+  }
+  
 
+  const handleClickLogout = () =>{
+    localStorage.removeItem('user');
+    window.location.assign('/login')
+  }
   const handleClose = () => {
+    
     setOpen(null);
   };
+  useEffect(() =>{
+    setUserInfo(headerService.GetUser().data)
+    console.log(headerService.GetUser().data)
+    
+  }, [])
 
   return (
     <>
@@ -78,26 +83,26 @@ export default function AccountPopover() {
       >
         <Box sx={{ my: 1.5, px: 2.5 }}>
           <Typography variant="subtitle2" noWrap>
-            {account.displayName}
+            {userInfo.userName}
           </Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            {account.email}
-          </Typography>
+          
         </Box>
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 
         <Stack sx={{ p: 1 }}>
-          {MENU_OPTIONS.map((option) => (
-            <MenuItem key={option.label} onClick={handleClose}>
-              {option.label}
-            </MenuItem>
-          ))}
+          <MenuItem key="Home" onClick={handleClickHome}>
+            Home
+          </MenuItem>
+          <MenuItem key="Profile" onClick={handleClickProfile}>
+            Profile
+          </MenuItem>          
+          
         </Stack>
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 
-        <MenuItem onClick={handleClose} sx={{ m: 1 }}>
+        <MenuItem onClick={handleClickLogout} sx={{ m: 1 }}>
           Logout
         </MenuItem>
       </Popover>
