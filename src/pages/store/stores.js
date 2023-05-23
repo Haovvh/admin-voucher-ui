@@ -275,8 +275,9 @@ export default function Store() {
                           <Button className='btn btn-warning' onClick={() => handleClickEditApprove(id)}>Rejected</Button>)}
                          </TableCell>
                          <TableCell align="left">
-                          {isEnable ? 'Yes' : 'No'}
-                         </TableCell>
+                          {isEnable ? <Label color="success">{sentenceCase('Yes')}</Label>: 
+                          <Label color="warning">{sentenceCase('No')}</Label>}
+                        </TableCell> 
                         
                         <TableCell align="right">                        
                           <IconButton size="large" color="inherit" onClick={()=>handleClickEdit(id)}>

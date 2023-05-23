@@ -59,7 +59,8 @@ const TABLE_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
   { id: 'description', label: 'Description', alignRight: false },
   { id: 'instruction', label: 'Instruction', alignRight: false },
-  { id: 'isVerified', label: 'Verified', alignRight: false },
+  { id: 'imageUrl', label: 'Image', alignRight: false },
+  { id: 'isEnable', label: 'Enable', alignRight: false },
   { id: '' },
 ];
 
@@ -306,7 +307,7 @@ export default function Game() {
                 />
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, name, description,instruction, isEnable } = row;
+                    const { id, name, description, instruction, imageUrl, isEnable } = row;
                     const selectedUser = selected.indexOf(name) !== -1;
 
                     return (
@@ -319,7 +320,12 @@ export default function Game() {
 
                         <TableCell align="left">{instruction}</TableCell>
 
-                        <TableCell align="left">{isEnable ? 'Yes' : 'No'}</TableCell>
+                        <TableCell align="left">{imageUrl}</TableCell>
+
+                        <TableCell align="left">
+                          {isEnable ? <Label color="success">{sentenceCase('Yes')}</Label>: 
+                          <Label color="warning">{sentenceCase('No')}</Label>}
+                        </TableCell> 
 
                         
                         <TableCell align="right">                        

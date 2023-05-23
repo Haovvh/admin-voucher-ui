@@ -8,6 +8,12 @@ const StoreAll = () => (
 })
 );
 
+const GetStoreById = (storeId) => (
+  axios.get(`${process.env.REACT_APP_API_URL}/Admin/Store/${storeId}`, { 
+    headers: headerService.accessToken() 
+})
+);
+
 const StoreApproved = () => (
   axios.get(`${process.env.REACT_APP_API_URL}/Admin/Store/Approved` , { 
     headers: headerService.accessToken()
@@ -47,7 +53,7 @@ const StoreRejecteStoreId = (storeId) => (
 
 
 export default  {
- 
+  GetStoreById,
   StoreAll,
   StoreApproveStoreId,
   StoreApproved,

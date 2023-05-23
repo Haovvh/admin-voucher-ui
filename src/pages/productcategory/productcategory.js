@@ -301,8 +301,10 @@ export default function ProductCategory() {
 
                         <TableCell align="left">{description}</TableCell>
 
-                        <TableCell align="left">{isEnable ? 'Yes' : 'No'}</TableCell>
-                        
+                        <TableCell align="left">
+                          {isEnable ? <Label color="success">{sentenceCase('Yes')}</Label>: 
+                          <Label color="warning">{sentenceCase('No')}</Label>}
+                        </TableCell>                         
 
                         <TableCell align="right">                        
                           <IconButton size="large" color="inherit" onClick={()=>handleClickEdit(id, name)}>

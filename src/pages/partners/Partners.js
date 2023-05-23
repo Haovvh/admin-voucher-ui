@@ -1,11 +1,12 @@
 import { Helmet } from 'react-helmet-async';
-import { filter } from 'lodash';
+import { filter, set } from 'lodash';
 import { sentenceCase } from 'change-case';
 
 import { useState, useEffect } from 'react';
 // @mui
 import {
   Card,
+  Box,
   Table,
   Stack,
   Paper,
@@ -19,17 +20,26 @@ import {
   IconButton,
   TableContainer,
   TablePagination,
+  TextField
 } from '@mui/material';
-
 // components
+import Grid from '@mui/material/Unstable_Grid2';
+
+
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
 import Iconify from '../../components/iconify';
 import Scrollbar from '../../components/scrollbar';
+import Label from '../../components/label';
 // sections
 import { UserListHead, UserListToolbar } from '../../sections/@dashboard/user';
 // mock
 
 
 import adminService from '../../services/admin.service';
+import storeService from '../../services/store.service';
 // ----------------------------------------------------------------------
 const avatar ={
   avatarMaleUrl: `/assets/images/avatars/avatar_2.jpg`,
@@ -39,9 +49,9 @@ const avatar ={
 const TABLE_HEAD = [
   { id: 'userName', label: 'UserName', alignRight: false },
   { id: 'name', label: 'Name', alignRight: false },
+  { id: 'address', label: 'Address', alignRight: false },
   { id: 'dateOfBirth', label: 'DateOfBirth', alignRight: false },
   { id: 'partnerType', label: 'PartnerType', alignRight: false },
-  { id: 'isVerified', label: 'Verified', alignRight: false },
   { id: 'store', label: 'Store', alignRight: false },
   { id: '' },
 ];
@@ -81,6 +91,21 @@ function applySortFilter(array, comparator, query) {
 export default function Partner() {  
 
   const [page, setPage] = useState(0);
+  const [open, setOpen] = useState(false);
+  const [address, setAddress] = useState({
+    district:"",
+    province:"",
+    ward:"",
+    street:""
+  })
+  const [store, setStore] = useState({
+    name:"",
+    description:""
+  })
+
+  const [openTime, setOpenTime] = useState("")
+
+  const [closeTime, setCloseTime] = useState("")
 
   const [order, setOrder] = useState('asc');
 
@@ -101,12 +126,30 @@ export default function Partner() {
     alert(`delete ${id}`)
   };
 
+  const handleClose = () => {
+    setOpen(false)    
+  }
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
 
+  const handleClickCancel = () => {
+    setOpen(false);
+    setAddress({
+      district:"",
+      province:"",
+      ward:"",
+      street:""
+    })
+    setStore({
+      name:"",
+      description:""
+    })
+    setCloseTime("")
+    setOpenTime("")
+  }
   
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -122,13 +165,34 @@ export default function Partner() {
     setFilterName(event.target.value);
     setSelected([]);
   };
-  const handleClickNew = () => {
-    alert("New OK")
-    
-  }
+  
 
   const handleClickStore = (id) => {
-    alert(id)
+    storeService.GetStoreById(id).then(
+      response =>{
+        if (response.data && response.data.success) {
+          const temp = response.data.data.store
+          console.log(temp)
+          setOpen(true);
+          setAddress({
+            district: temp.address.ward.district.fullName,
+            street: temp.address.street,
+            province: temp.address.ward.province.fullName,
+            ward: temp.address.ward.fullName,
+          })
+          setStore({
+            name:temp.name,
+            description: temp.description
+          })
+          setOpenTime(`${temp.openTime.hour}:${temp.openTime.minute}`)
+          setCloseTime(`${temp.closeTime.hour}:${temp.closeTime.minute}`)
+        }
+        
+      }, error => {
+        console.log(error)
+      }
+    )
+   
   }
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - partners.length) : 0;
@@ -182,7 +246,7 @@ export default function Partner() {
                 />
                 <TableBody>
                   {filteredDatas.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, userName, name, dateOfBirth, partnerType, isVerified, store, gender } = row;
+                    const { id, userName, name, dateOfBirth, partnerType, address,  store, gender } = row;
                     const selectedUser = selected.indexOf(userName) !== -1;
 
                     return (
@@ -207,13 +271,13 @@ export default function Partner() {
                           {name} 
                          </TableCell>
                          <TableCell align="left">
+                          {address.street} {address.ward.fullName} {address.ward.district.fullName} 
+                         </TableCell>
+                         <TableCell align="left">
                           {dateOfBirth.year} {"-"} {dateOfBirth.month}{"-"}{dateOfBirth.day}
                          </TableCell>
                          <TableCell align="left">
                           {partnerType}
-                         </TableCell>
-                         <TableCell align="left">
-                          {isVerified}
                          </TableCell>
                          <TableCell align="left">
                           {(store !== null) ? <Button className='btn btn-success' onClick={() => handleClickStore(store.id)}>{store.name}</Button> : <Button className='btn btn-warning'>No</Button>}
@@ -275,7 +339,102 @@ export default function Partner() {
           />
         </Card>
       </Container>
-      
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>New Store</DialogTitle>
+        <DialogContent>
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <TextField 
+              name="name" 
+              label="Store Name" 
+              fullWidth
+              value={store.name} 
+              required
+              disabled
+              />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField 
+              name="description" 
+              label="Description" 
+              value={store.description} 
+              fullWidth
+              required
+              
+              />
+          </Grid>
+          <Grid item xs={6}>
+          <TextField
+                  label="province"
+                  fullWidth                  
+                  value={address.province}
+                  id="country"       
+                  disabled   
+                  
+                />
+           
+          
+          </Grid>
+          <Grid item xs={6}>
+          <TextField
+                  label="District"                 
+                  
+                  fullWidth
+                  value={address.district}
+                  id="country" 
+                  disabled
+                  
+                />
+               
+          </Grid>
+          <Grid item xs={4}>
+          <TextField
+                  label="Ward"
+                  fullWidth                  
+                  variant="outlined"
+                  value={address.ward}
+                  id="country"      
+                  
+                />
+                  
+          </Grid>
+          <Grid item xs={8}>
+            <TextField 
+            name="street" 
+            label="Street" 
+            disabled
+            value={address.street}             
+           
+            />
+          </Grid>
+          <Grid item xs={6}>
+          <Label>Open Time</Label>
+          <TextField 
+            name="openTime" 
+            type="text"
+            fullWidth
+            value={openTime} 
+            disabled
+           
+            />
+          </Grid>
+          <Grid item xs={6}> 
+          <Label>Close Time</Label>
+          <TextField 
+            name="closeTime" 
+            type="text"
+            fullWidth
+            value={closeTime} 
+            disabled            
+            />
+          </Grid>
+        </Grid> 
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClickCancel}>Cancel</Button>
+          
+        </DialogActions>
+      </Dialog>
     </>
   );
 }
