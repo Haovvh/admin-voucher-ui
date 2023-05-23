@@ -1,11 +1,11 @@
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
-
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 // @mui
 import {
   Card,
+  Box,
   Table,
   Stack,
   Paper,
@@ -19,30 +19,54 @@ import {
   IconButton,
   TableContainer,
   TablePagination,
+  InputLabel,
+  Select,
+  TextField,
+  MenuItem,
+  Modal 
 } from '@mui/material';
+import { styled } from '@mui/material/styles';
 
+import Grid from '@mui/material/Unstable_Grid2';
+
+
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
 // components
+import Label from '../../components/label';
 import Iconify from '../../components/iconify';
 import Scrollbar from '../../components/scrollbar';
+
+
+
+import getService from '../../services/getEnum.service'
+   
+import adminService from '../../services/admin.service';
+import gameService from '../../services/game.service';
+
 // sections
 import { UserListHead, UserListToolbar } from '../../sections/@dashboard/user';
 // mock
 
+import searchPartner from '../../utils/searchPartner';
 
-import adminService from '../../services/admin.service';
 // ----------------------------------------------------------------------
-const avatar ={
-  avatarMaleUrl: `/assets/images/avatars/avatar_2.jpg`,
-  avatarFemaleUrl: `/assets/images/avatars/avatar_1.jpg`,
-  avatarOthersUrl: `/assets/images/avatars/avatar_3.jpg`,
-}
+const Item = styled(Paper)(({ theme }) => ({
+  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+  ...theme.typography.body2,
+  padding: theme.spacing(1),
+  textAlign: 'center',
+  color: theme.palette.text.secondary,
+}));
+
+
 const TABLE_HEAD = [
-  { id: 'userName', label: 'UserName', alignRight: false },
   { id: 'name', label: 'Name', alignRight: false },
-  { id: 'dateOfBirth', label: 'DateOfBirth', alignRight: false },
-  { id: 'partnerType', label: 'PartnerType', alignRight: false },
+  { id: 'description', label: 'Description', alignRight: false },
+  { id: 'instruction', label: 'Instruction', alignRight: false },
   { id: 'isVerified', label: 'Verified', alignRight: false },
-  { id: 'store', label: 'Store', alignRight: false },
   { id: '' },
 ];
 
@@ -71,29 +95,51 @@ function applySortFilter(array, comparator, query) {
     if (order !== 0) return order;
     return a[1] - b[1];
   });
-    
+  
   if (query) {
-    return filter(array, (_user) => _user.userName.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    return filter(array, (_user) => _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   } 
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function Partner() {  
-
+export default function Game() {  
+  const [instruction, setInstruction] = useState("")
+  const [success, setSuccess] = useState(false)
+  const [open, setOpen] = useState(false);
   const [page, setPage] = useState(0);
 
   const [order, setOrder] = useState('asc');
+  const [name, setName] = useState("");
+
+  const [description, setDescription] = useState("");
 
   const [selected, setSelected] = useState([]);
 
-  const [orderBy, setOrderBy] = useState('userName');
+  const [orderBy, setOrderBy] = useState('name');
 
   const [filterName, setFilterName] = useState('');
 
-  const [partners, setPartners] = useState([])
+  const [games, setGames] = useState([])
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
+  const handleChangeName = (event) => {
+    setName(event.target.value) 
+  }
+
+  const handlechangeInstruction = (event) => {
+    setInstruction(event.target.value) 
+  }
+
+  const handlechangeDescription = (event) => {
+    setDescription(event.target.value) 
+  }
+  const handleClickClose = () => {
+    setOpen(false)    
+  }
+  const handleClose = () => {
+    setOpen(false)    
+  }
   const handleClickEdit = (id, name) => {
     alert(`edit ${id}  ${name}`)
   };
@@ -122,47 +168,69 @@ export default function Partner() {
     setFilterName(event.target.value);
     setSelected([]);
   };
+
   const handleClickNew = () => {
-    alert("New OK")
+    setOpen(true);
     
   }
-
-  const handleClickStore = (id) => {
-    alert(id)
+  const handleClickCancel = () => {
+    setOpen(false);
+    
   }
-
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - partners.length) : 0;
-
-  const filteredDatas = applySortFilter(partners, getComparator(order, orderBy), filterName);
-
-
-  const isNotFound = !filteredDatas.length && !!filterName;
-  useEffect(() =>{
-    adminService.partnerAll().then(
-      response => {
-        if(response && response.status === 200 && response.data.success && response.data.data) {
-          console.log("partner ==>",response.data.data.partners)
-          setPartners(response.data.data.partners)
+  const handleClickSubmit = () => {
+    gameService.PostGame(name, description,instruction).then(
+      response =>{
+        if(response.data && response.data.success && response.data.data) {
+          alert("Success");
+          setOpen(false); 
+          setSuccess(true)
+          setName("");
+          setDescription("");
+          setInstruction("");
         }
-        
       }, error =>{
-        console.log("Error Partner",error)
+        alert("Dữ liệu không phù hợp")
+        
+        console.log("Error submit games",error)
       }
     )
-  },[])
+       
+  }
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - games.length) : 0;
+
+  const filteredUsers = applySortFilter(games, getComparator(order, orderBy), filterName);
+
+  const isNotFound = !filteredUsers.length && !!filterName;
+  useEffect(() =>{
+    gameService.GameAll().then(
+      response =>{
+        if( response.data && response.data.success && response.data.data) {
+          setGames(response.data.data.games)
+          setSuccess(false)
+        }
+        
+
+      }, error => {
+        console.log("Error Game",error)
+      }
+    )
+    
+  },[success])
 
   return (
     <>
       <Helmet>
-        <title> Partners  </title>
+        <title> Games  </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-          Partners
+          Games
           </Typography>
-          
+          <Button onClick={handleClickNew} variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
+            New Game
+          </Button>
         </Stack>
 
         <Card>
@@ -175,55 +243,34 @@ export default function Partner() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={partners.length}
+                  rowCount={games.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   
                 />
                 <TableBody>
-                  {filteredDatas.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, userName, name, dateOfBirth, partnerType, isVerified, store, gender } = row;
-                    const selectedUser = selected.indexOf(userName) !== -1;
+                  {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                    const { id, name, description,instruction, isEnable } = row;
+                    const selectedUser = selected.indexOf(name) !== -1;
 
                     return (
                       <TableRow hover key={id} tabIndex={-1} role="checkbox" selected={selectedUser}>
-                         <TableCell component="th" scope="row" padding="none">
-                          <Stack direction="row" alignItems="center" spacing={2}>
-                            {gender === 'Male' &&(
-                              <Avatar alt={userName} src={avatar.avatarMaleUrl} />
-                            )}
-                            {gender === 'Female' &&(
-                              <Avatar alt={userName} src={avatar.avatarFemaleUrl} />
-                            )}
-                            {gender === 'Other' &&(
-                              <Avatar alt={userName} src={avatar.avatarOthersUrl} />
-                            )}
-                            <Typography variant="subtitle2" noWrap>
-                              {userName}
-                            </Typography>
-                          </Stack>
-                        </TableCell>
-                         <TableCell align="left">
-                          {name} 
-                         </TableCell>
-                         <TableCell align="left">
-                          {dateOfBirth.year} {"-"} {dateOfBirth.month}{"-"}{dateOfBirth.day}
-                         </TableCell>
-                         <TableCell align="left">
-                          {partnerType}
-                         </TableCell>
-                         <TableCell align="left">
-                          {isVerified}
-                         </TableCell>
-                         <TableCell align="left">
-                          {(store !== null) ? <Button className='btn btn-success' onClick={() => handleClickStore(store.id)}>{store.name}</Button> : <Button className='btn btn-warning'>No</Button>}
-                         </TableCell>
+                         
+
+                        <TableCell align="left">{name}</TableCell>
+
+                        <TableCell align="left">{description}</TableCell>
+
+                        <TableCell align="left">{instruction}</TableCell>
+
+                        <TableCell align="left">{isEnable ? 'Yes' : 'No'}</TableCell>
+
                         
                         <TableCell align="right">                        
-                          <IconButton size="large" color="inherit" onClick={()=>handleClickEdit(id, userName)}>
+                          <IconButton size="large" color="inherit" onClick={()=>handleClickEdit(id, name)}>
                           <Iconify icon={'eva:edit-fill'}  sx={{ mr: 2 }} />                          
                           </IconButton>
-                          <IconButton size="large" color="inherit" onClick={()=>handleClickDelete(id, userName)}>
+                          <IconButton size="large" color="inherit" onClick={()=>handleClickDelete(id)}>
                           <Iconify  icon={'eva:trash-2-outline'} color="red" sx={{ mr: 2 }} />                        
                           </IconButton>
                         </TableCell>
@@ -267,14 +314,58 @@ export default function Partner() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={partners.length}
+            count={games.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
           />
         </Card>
+
       </Container>
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>New Game</DialogTitle>
+        <DialogContent>
+        <Grid container spacing={2}>
+        <Grid xs={12}>
+        <TextField 
+        name="name" 
+        label="Name" 
+        fullWidth
+        value={name} 
+        required
+        onChange={(event) => { handleChangeName(event) }}
+        />
+        </Grid>
+        <Grid xs={12}>
+        <TextField 
+        name="description" 
+        label="Description" 
+        value={description} 
+        fullWidth
+        required
+        onChange={(event) => { handlechangeDescription(event) }}
+        />
+        </Grid>
+        <Grid xs={12}>
+        <TextField 
+        name="instruction" 
+        label="Instruction" 
+        value={instruction} 
+        fullWidth
+        required
+        onChange={(event) => { handlechangeInstruction(event) }}
+        />  
+        </Grid>
+        </Grid>
+        
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClickCancel}>Cancel</Button>
+          <Button onClick={handleClickSubmit}>Submit</Button>
+        </DialogActions>
+      </Dialog>
+      
       
     </>
   );

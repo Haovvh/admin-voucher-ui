@@ -35,11 +35,11 @@ export default function LoginForm() {
           }          
           
         }, error => {
-          alert("Please check UserName or Password")
+          alert("Wrong. Please check UserName or Password")
         }
       )
     } else {
-      alert("Please Input UserName and Password")
+      alert("Please Input Username and Password")
     }
     
     

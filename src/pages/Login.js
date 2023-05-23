@@ -2,11 +2,11 @@ import { Helmet } from 'react-helmet-async';
 import { useEffect } from 'react';
 // @mui
 import { styled } from '@mui/material/styles';
-import {  Container, Typography } from '@mui/material';
+import {  Container, Typography,Grid  } from '@mui/material';
 // hooks
 import useResponsive from '../hooks/useResponsive';
 // components
-import Logo from '../components/logo';
+
 
 // sections
 import { LoginForm } from '../sections/auth/login';
@@ -53,18 +53,12 @@ export default function Login() {
       </Helmet>
 
       <StyledRoot>
-        <Logo
-          sx={{
-            position: 'fixed',
-            top: { xs: 16, sm: 24, md: 40 },
-            left: { xs: 16, sm: 24, md: 40 },
-          }}
-        />
+        
 
         {mdUp && (
           <StyledSection>
             <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
-              Hi, Welcome Back
+              Hi, Welcome Admin
             </Typography>
             <img src="/assets/illustrations/illustration_login.png" alt="login" />
           </StyledSection>

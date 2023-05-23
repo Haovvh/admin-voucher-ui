@@ -30,6 +30,7 @@ import {
   MenuItem,
 } from '@mui/material';
 
+import Grid from '@mui/material/Unstable_Grid2';
 // components
 import Iconify from '../../components/iconify';
 import Scrollbar from '../../components/scrollbar';
@@ -38,8 +39,8 @@ import Label from '../../components/label';
 import { UserListHead, UserListToolbar } from '../../sections/@dashboard/user';
 // mock
 
+import storeService from '../../services/store.service';
 
-import adminService from '../../services/admin.service';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -52,6 +53,7 @@ const TABLE_HEAD = [
   { id: 'isEnable', label: 'IsEnable', alignRight: false },
   { id: '' },
 ];
+
 
 const statusApprove = ["Approve             ", "Reject          "]
 // ----------------------------------------------------------------------
@@ -158,7 +160,7 @@ export default function Store() {
   const handleClickSubmit = () => {
     if(isApprove) {
       if(isApprove === statusApprove[0]) {
-        adminService.StoreApproveStoreId(storeId).then(
+        storeService.StoreApproveStoreId(storeId).then(
           response => {
             if(response.data && response.status === 200 && response.data.success) {
               alert("success");
@@ -170,7 +172,7 @@ export default function Store() {
         
       } 
       else if(isApprove === statusApprove[1]) {
-        adminService.StoreRejecteStoreId(storeId).then(
+        storeService.StoreRejecteStoreId(storeId).then(
           response => {
             if(response.data && response.status === 200 && response.data.success) {
               alert("success");
@@ -194,18 +196,20 @@ export default function Store() {
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - stores.length) : 0;
 
-  const filteredUsers = applySortFilter(stores, getComparator(order, orderBy), filterName);
+  const filteredDatas = applySortFilter(stores, getComparator(order, orderBy), filterName);
 
-  const isNotFound = !filteredUsers.length && !!filterName;
+  const isNotFound = !filteredDatas.length && !!filterName;
   useEffect(()=>{
     setIsEdit(false);
-    adminService.StoreAll().then(
+    storeService.StoreAll().then(
       response =>{
-        if(response.data && response.status === 200 && response.data.success) {
-          console.log(response.data.data.stores)
+        if(response.data  && response.data.success) {
+          console.log("Stores ==>",response.data.data.stores)
           setStores(response.data.data.stores)
         }
         
+      }, error => {
+        console.log("Error Store =>",error)
       }
     )
   },[isEdit])
@@ -221,9 +225,7 @@ export default function Store() {
           <Typography variant="h4" gutterBottom>
           Stores
           </Typography>
-          <Button onClick={handleClickNew} variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-            New Store
-          </Button>
+          
         </Stack>
 
         <Card>
@@ -242,7 +244,7 @@ export default function Store() {
                   
                 />
                 <TableBody>
-                  {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                  {filteredDatas.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                     const { id,  name, address, description, isApproved
                       , isEnable, openTime, closeTime } = row;
                     const selectedUser = selected.indexOf(name) !== -1;
@@ -338,16 +340,15 @@ export default function Store() {
         <DialogContentText>
             Please choose Approved or Rejected.
           </DialogContentText>
-        
-        <TextField
-                  style={{ marginTop: 20 }}
+          <Grid container spacing={2}>
+          <Grid item xs={12}>
+          <TextField
                   label="Status"
                   fullWidth
                   select
                   variant="outlined"
                   value={isApprove}
-                  id="country"                  
-                  margin="dense"
+                  id="country"      
                   onChange= {handleChangeStatusApprove}
                 >
                   {statusApprove  && statusApprove.map((option) => (
@@ -357,7 +358,8 @@ export default function Store() {
           )
           )}
             </TextField>  
-        
+          </Grid>
+          </Grid>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClickCancel}>Cancel</Button>

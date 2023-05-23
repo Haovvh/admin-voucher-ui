@@ -10,6 +10,7 @@ import Profile from './pages/Profile';
 import Logout from './pages/Logout';
 import DashboardAppPage from './pages/DashboardAppPage';
 import Game from './pages/games/Games';
+import ProductCategory from './pages/productcategory/productcategory';
 import Partner from './pages/partners/Partners';
 import User from './pages/user/Users';
 import Conpaign from './pages/conpaigns/conpaign';
@@ -20,7 +21,7 @@ import PageRole from './pages/PageRole';
 // ----------------------------------------------------------------------
 
 export default function Router() {
-  const isUser = (Service.GetUser() && Service.GetUser().success && Service.GetUser().data && Service.GetUser().data.accountToken)
+  const isUser = (Service.GetUser() && Service.GetUser().success && Service.GetUser().data && Service.GetUser().data.token )
   const routes = useRoutes([
     {
       path: '',
@@ -32,6 +33,8 @@ export default function Router() {
         { path: 'conpaign', element: (isUser)? <Conpaign /> :<PageRole/>},
         { path: 'partner', element: (isUser)? <Partner /> :<PageRole/>},
         { path: 'store', element: (isUser)? <Store /> :<PageRole/>},
+        { path: 'productcategory', element: (isUser)? <ProductCategory /> :<PageRole/>},
+        
         { path: 'profile', element: (isUser)? <Profile /> :<PageRole/>},
         { path: 'user', element: (isUser)? <User /> :<PageRole/>},
         { path: 'logout', element: (isUser)? <Logout /> :<PageRole/>},

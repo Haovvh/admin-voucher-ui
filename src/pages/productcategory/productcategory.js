@@ -42,26 +42,23 @@ import Scrollbar from '../../components/scrollbar';
 
 import getService from '../../services/getEnum.service'
    
-import adminService from '../../services/admin.service';
-import gameService from '../../services/game.service';
+import productcategoryService from '../../services/productcategory.service';
 
 // sections
 import { UserListHead, UserListToolbar } from '../../sections/@dashboard/user';
 // mock
 
-import searchPartner from '../../utils/searchPartner';
+
 
 // ----------------------------------------------------------------------
 
-
-
 const TABLE_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
-  { id: 'description', label: 'Description', alignRight: false },
-  { id: 'instruction', label: 'Instruction', alignRight: false },
-  { id: 'isVerified', label: 'Verified', alignRight: false },
+  { id: 'description', label: 'Description', alignRight: false },  
+  { id: 'isEnable', label: 'Enable', alignRight: false },
   { id: '' },
 ];
+
 
 // ----------------------------------------------------------------------
 
@@ -88,16 +85,15 @@ function applySortFilter(array, comparator, query) {
     if (order !== 0) return order;
     return a[1] - b[1];
   });
-  
   if (query) {
     return filter(array, (_user) => _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   } 
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function Game() {  
-  const [instruction, setInstruction] = useState("")
-  const [success, setSuccess] = useState(false)
+export default function ProductCategory() {  
+  
+  const [success, setSuccess] = useState(false);
   const [open, setOpen] = useState(false);
   const [page, setPage] = useState(0);
 
@@ -112,21 +108,14 @@ export default function Game() {
 
   const [filterName, setFilterName] = useState('');
 
-  const [games, setGames] = useState([])
+  const [productCategorys, setProductCategorys] = useState([])
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [gameId, setGameId] = useState("");
-  const [imageUrl, setImageUrl] = useState("/DummyImages/Games/lucky-wheel.jpg")
+
+  const [productCategoryId, setProductCategoryId] = useState("");
 
   const handleChangeName = (event) => {
     setName(event.target.value) 
-  }
-
-  const handlechangeInstruction = (event) => {
-    setInstruction(event.target.value) 
-  }
-  const handlechangeImageUrl = (event) => {
-    setImageUrl(event.target.value) 
   }
 
   const handlechangeDescription = (event) => {
@@ -137,29 +126,28 @@ export default function Game() {
   }
   const handleClose = () => {
     setOpen(false)    
-    clearScreen();
   }
   const handleClickEdit = (id, name) => {
-    gameService.GetGameById(id).then(
-      response => {
-        if(response.data && response.data.success) {
-          const temp = response.data.data.game
-          console.log(temp)
-          setGameId(temp.id);
+    productcategoryService.GetProductCategoryById(id).then(
+      response => { 
+        if (response.data && response.data.success) {
+          const temp = response.data.data.productCategories
+          setProductCategoryId(temp.id);
           setName(temp.name);
           setDescription(temp.description)
-          setInstruction(temp.instruction)
-          setImageUrl(temp.imageUrl);
           setOpen(true)
+          
         }
+        
       }, error => {
         console.log(error)
       }
     )
+    
   };
   const handleClickDelete = (id) => {
     if(window.confirm("Are you want delete")) {
-      gameService.DeleteGameById(id).then(
+      productcategoryService.DeleteProductCategoryById(id).then(
         response => { 
           if (response.data && response.data.success) {
             alert("Delete Success")
@@ -171,7 +159,7 @@ export default function Game() {
         }
       )
     }
-   
+    
   };
 
   const handleRequestSort = (event, property) => {
@@ -204,70 +192,66 @@ export default function Game() {
     setOpen(false);
     
   }
-  const clearScreen = () => {
-    setSuccess(true)
+  const clearScreen = () =>{
+    setProductCategoryId("");
     setName("");
     setDescription("");
-    setInstruction("");
-    setGameId("");
   }
+
   const handleClickSubmit = () => {
-    if (name && description && instruction) {
-      if (gameId === "") {
-        gameService.PostGame(name, description,instruction).then(
-          response =>{
-            if(response.data && response.data.success && response.data.data) {
-              alert("Success");
-              setOpen(false); 
+    if (name && description) {
+      if(productCategoryId === "") {
+        productcategoryService.PostProductCategory(name, description).then(
+          response => { 
+            if(response.data && response.data.success) {
+              setSuccess(true)
+              setOpen(false);  
               clearScreen();
-              setSuccess(!success)
-            }
-          }, error =>{
-            alert("Dữ liệu không phù hợp")
     
-            console.log("Error submit games",error)
+            }
+            
+          }, error => {
+            alert("Dữ liệu không hợp lệ")
+            console.log("Error Submit",error)
           }
         )
       } else {
-        gameService.PutGameById(name, description, instruction, gameId ).then(
-          response =>{
-            if(response.data && response.data.success && response.data.data) {
-              alert("Update Success");
-              setOpen(false); 
-              clearScreen();
-              setSuccess(!success)
+        productcategoryService.PutProductCategoryById(name, description, productCategoryId).then(
+          response => { 
+            if(response.data && response.data.success) {
+              setSuccess(true)
+              setOpen(false);  
+              clearScreen();  
             }
-          }, error =>{
-            alert("Dữ liệu không phù hợp")
-    
-            console.log("Error submit games",error)
+            
+          }, error => {
+            alert("Dữ liệu không hợp lệ")
+            console.log("Error Submit",error)
           }
         )
-      }
+      }  
     } else {
       alert("Vui lòng nhập đầy đủ thông tin")
     }
-    
-    
-       
+      
+      
   }
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - games.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - productCategorys.length) : 0;
 
-  const filteredUsers = applySortFilter(games, getComparator(order, orderBy), filterName);
+  const filteredDatas = applySortFilter(productCategorys, getComparator(order, orderBy), filterName);
 
-  const isNotFound = !filteredUsers.length && !!filterName;
+  const isNotFound = !filteredDatas.length && !!filterName;
   useEffect(() =>{
-    gameService.GameAll().then(
+    productcategoryService.ProductCategoryAll().then(
       response =>{
-        if( response.data && response.data.success && response.data.data) {
-          console.log("Game",response.data.data)
-          setGames(response.data.data.games)
+        if(response.data  && response.data.success) {
+          console.log("productCategories =>",response.data.data.productCategories)
+
+          setProductCategorys(response.data.data.productCategories)
           setSuccess(false)
         }
-        
-
       }, error => {
-        console.log("Error Game",error)
+        console.log("Error productCategories ==>",error)
       }
     )
     
@@ -276,16 +260,16 @@ export default function Game() {
   return (
     <>
       <Helmet>
-        <title> Games  </title>
+        <title> ProductCategory  </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-          Games
+          ProductCategory
           </Typography>
           <Button onClick={handleClickNew} variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-            New Game
+            New ProductCategory
           </Button>
         </Stack>
 
@@ -299,29 +283,27 @@ export default function Game() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={games.length}
+                  rowCount={productCategorys.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   
                 />
                 <TableBody>
-                  {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, name, description,instruction, isEnable } = row;
+                  {filteredDatas.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                    const { id, name, description, isEnable } = row;
                     const selectedUser = selected.indexOf(name) !== -1;
 
                     return (
                       <TableRow hover key={id} tabIndex={-1} role="checkbox" selected={selectedUser}>
-                         
+                        
 
                         <TableCell align="left">{name}</TableCell>
 
                         <TableCell align="left">{description}</TableCell>
 
-                        <TableCell align="left">{instruction}</TableCell>
-
                         <TableCell align="left">{isEnable ? 'Yes' : 'No'}</TableCell>
-
                         
+
                         <TableCell align="right">                        
                           <IconButton size="large" color="inherit" onClick={()=>handleClickEdit(id, name)}>
                           <Iconify icon={'eva:edit-fill'}  sx={{ mr: 2 }} />                          
@@ -370,7 +352,7 @@ export default function Game() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={games.length}
+            count={productCategorys.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
@@ -379,52 +361,32 @@ export default function Game() {
         </Card>
 
       </Container>
+
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>New Game</DialogTitle>
+        <DialogTitle>New ProductCategory</DialogTitle>
         <DialogContent>
         <Grid container spacing={2}>
-        <Grid xs={12}>
-        <TextField 
-        name="name" 
-        label="Name" 
-        fullWidth
-        value={name} 
-        required
-        onChange={(event) => { handleChangeName(event) }}
-        />
+          <Grid xs={12}>
+          <TextField 
+            name="name" 
+            label="Name" 
+            fullWidth
+            value={name} 
+            required
+            onChange={(event) => { handleChangeName(event) }}
+            />
+          </Grid>
+          <Grid xs={12}>
+          <TextField 
+            name="description" 
+            label="Description" 
+            value={description} 
+            fullWidth
+            required
+            onChange={(event) => { handlechangeDescription(event) }}
+            />
+          </Grid>
         </Grid>
-        <Grid xs={12}>
-        <TextField 
-        name="description" 
-        label="Description" 
-        value={description} 
-        fullWidth
-        required
-        onChange={(event) => { handlechangeDescription(event) }}
-        />
-        </Grid>
-        <Grid xs={12}>
-        <TextField 
-        name="instruction" 
-        label="Instruction" 
-        value={instruction} 
-        fullWidth
-        required
-        onChange={(event) => { handlechangeInstruction(event) }}
-        />  
-        </Grid>
-        <Grid xs={12}>
-        <TextField 
-        name="imageUrl" 
-        label="ImageUrl" 
-        value={imageUrl} 
-        fullWidth
-        required
-        onChange={(event) => { handlechangeImageUrl(event) }}
-        />  
-        </Grid>
-        </Grid>
-        
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClickCancel}>Cancel</Button>

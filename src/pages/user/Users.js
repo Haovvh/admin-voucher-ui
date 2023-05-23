@@ -122,21 +122,20 @@ export default function User() {
     setFilterName(event.target.value);
     setSelected([]);
   };
-  const handleClickNew = () => {
-    alert("New OK")
-    
-  }
+  
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - partners.length) : 0;
 
-  const filteredUsers = applySortFilter(partners, getComparator(order, orderBy), filterName);
+  const filteredDatas = applySortFilter(partners, getComparator(order, orderBy), filterName);
 
-  const isNotFound = !filteredUsers.length && !!filterName;
+  const isNotFound = !filteredDatas.length && !!filterName;
   useEffect(() =>{
     adminService.endUserAll().then(
       response => {
-        if(response && response.status === 200 && response.data.success && response.data.data) {
-          console.log("partner ==>",response.data.data.endUsers)
+        
+        if(  response.data.success && response.data.data) {
+         
+          console.log(response.data)
           setPartners(response.data.data.endUsers)
         }
         
@@ -157,9 +156,7 @@ export default function User() {
           <Typography variant="h4" gutterBottom>
           EndUser
           </Typography>
-          <Button onClick={handleClickNew} variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-            New EndUser
-          </Button>
+          
         </Stack>
 
         <Card>
@@ -178,7 +175,7 @@ export default function User() {
                   
                 />
                 <TableBody>
-                  {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                  {filteredDatas.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                     const { id, userName, name, dateOfBirth,  isVerified, store, gender } = row;
                     const selectedUser = selected.indexOf(userName) !== -1;
 
