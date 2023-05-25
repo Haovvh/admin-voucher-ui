@@ -1,10 +1,10 @@
 const accessToken = () => {
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(localStorage.getItem('token'));
   
   
-  if (user && user.data && user.data.token && user.data.token.accessToken)  {
+  if (user &&  user.accessToken)  {
     return {
-      Authorization: `Bearer ${user.data.token.accessToken}`      
+      Authorization: `Bearer ${user.accessToken}`      
     } 
   }
   return {
@@ -14,21 +14,17 @@ const accessToken = () => {
 
 const refreshToken = () => {
   
-  const user = JSON.parse(localStorage.getItem('user'));
-  if (user && user.data && user.data.token && user.data.token.refreshToken)  {
-    return {
-      Authorization: `Bearer ${user.data.token.refreshToken}`      
-    } 
+  const user = JSON.parse(localStorage.getItem('token'));
+  if (user && user.refreshToken)  {
+    return user.refreshToken
   }
-  return {
-
-  }  
+  return ""
 }
 
 const userName = () => {
   const user = JSON.parse(localStorage.getItem('user'))
-  if(user && user.data && user.data.account.userName){
-    return user.data.account.userName
+  if(user && user.userName){
+    return user.userName
   }  
   return ""  
 }
@@ -40,5 +36,6 @@ const GetUser = () => (
 export default {
   accessToken,
   refreshToken,
-  GetUser, userName
+  GetUser, 
+  userName
 }

@@ -21,7 +21,7 @@ import PageRole from './pages/PageRole';
 // ----------------------------------------------------------------------
 
 export default function Router() {
-  const isUser = (Service.GetUser() && Service.GetUser().success && Service.GetUser().data && Service.GetUser().data.token )
+  const isUser = (Service.GetUser() && Service.refreshToken() !== "")
   const routes = useRoutes([
     {
       path: '',

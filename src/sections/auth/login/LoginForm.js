@@ -29,9 +29,11 @@ export default function LoginForm() {
     if(userName && password) {
       admin.Login(userName, password).then(
         response => {
+          console.log(response.data.data)
           if(response.data.success && response.data.data) {
-            localStorage.setItem("user", JSON.stringify(response.data));
-            window.location.assign('/')
+            localStorage.setItem("user", JSON.stringify(response.data.data.account));
+            localStorage.setItem("token", JSON.stringify(response.data.data.token)) 
+            window.location.assign('/');
           }          
           
         }, error => {

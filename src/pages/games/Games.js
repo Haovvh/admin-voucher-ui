@@ -168,7 +168,7 @@ export default function Game() {
           }
           
         }, error => {
-          console.log(error)
+          alert("Dữ liệu đã tồn tại không thể xóa")
         }
       )
     }
@@ -388,7 +388,9 @@ export default function Game() {
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>New Game</DialogTitle>
         <DialogContent>
+          <br/>
         <Grid container spacing={2}>
+
         <Grid xs={12}>
         <TextField 
         name="name" 

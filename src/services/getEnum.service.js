@@ -21,6 +21,7 @@ const getAddressWardDistrictId = (DistrictId="001") =>
      axios.get(`${process.env.REACT_APP_API_URL}/Address/Ward/DistrictId?DistrictId=${DistrictId}`)
 
 
+
 export default {
     getValuesGender,
     getValuesPartnerType,

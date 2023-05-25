@@ -48,6 +48,22 @@ const StoreRejecteStoreId = (storeId) => (
 })
 );
 
+const StoreEnableStoreId = (storeId) => (
+  axios.put(`${process.env.REACT_APP_API_URL}/Admin/Store/Enable/${storeId}`, {
+
+  },{ 
+    headers: headerService.accessToken()
+})
+);
+
+const StoreDisableStoreId = (storeId) => (
+  axios.put(`${process.env.REACT_APP_API_URL}/Admin/Store/Disable/${storeId}`, {
+    
+  }, { 
+    headers: headerService.accessToken()
+})
+);
+
 
 
 
@@ -59,5 +75,7 @@ export default  {
   StoreApproved,
   StoreNeedApproval,
   StoreRejecteStoreId,
-  StoreRejected
+  StoreRejected,
+  StoreEnableStoreId,
+  StoreDisableStoreId
 }

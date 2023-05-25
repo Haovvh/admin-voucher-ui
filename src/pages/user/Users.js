@@ -40,9 +40,8 @@ const TABLE_HEAD = [
   { id: 'userName', label: 'UserName', alignRight: false },
   { id: 'name', label: 'Name', alignRight: false },
   { id: 'dateOfBirth', label: 'DateOfBirth', alignRight: false },
-  { id: 'partnerType', label: 'PartnerType', alignRight: false },
-  { id: 'isVerified', label: 'Verified', alignRight: false },
-  { id: 'store', label: 'Store', alignRight: false },
+  { id: 'address', label: 'Address', alignRight: false },
+  { id: 'gender', label: 'Gender', alignRight: false },
   { id: '' },
 ];
 
@@ -176,7 +175,7 @@ export default function User() {
                 />
                 <TableBody>
                   {filteredDatas.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, userName, name, dateOfBirth,  isVerified, store, gender } = row;
+                    const { id, userName, name, dateOfBirth,  address, gender, store } = row;
                     const selectedUser = selected.indexOf(userName) !== -1;
 
                     return (
@@ -189,7 +188,7 @@ export default function User() {
                             {gender === 'Female' &&(
                               <Avatar alt={userName} src={avatar.avatarFemaleUrl} />
                             )}
-                            {gender === 'Other' &&(
+                            {gender === 'Others' &&(
                               <Avatar alt={userName} src={avatar.avatarOthersUrl} />
                             )}
                             <Typography variant="subtitle2" noWrap>
@@ -205,11 +204,12 @@ export default function User() {
                          </TableCell>
                          
                          <TableCell align="left">
-                          {isVerified}
+                          {address.street}-{address.ward.fullName}-{address.ward.district.fullName}-{address.ward.province.fullName}
                          </TableCell>
                          <TableCell align="left">
-                          {store}
+                          {gender}
                          </TableCell>
+                         
                         
                         <TableCell align="right">                        
                           <IconButton size="large" color="inherit" onClick={()=>handleClickEdit(id, userName)}>

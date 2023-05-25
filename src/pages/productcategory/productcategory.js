@@ -155,7 +155,7 @@ export default function ProductCategory() {
           }
           
         }, error => {
-          console.log(error)
+          alert("Dữ liệu đã tồn tại")
         }
       )
     }
@@ -367,6 +367,7 @@ export default function ProductCategory() {
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>New ProductCategory</DialogTitle>
         <DialogContent>
+        <br/>
         <Grid container spacing={2}>
           <Grid xs={12}>
           <TextField 

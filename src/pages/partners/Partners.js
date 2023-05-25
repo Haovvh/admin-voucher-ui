@@ -24,7 +24,7 @@ import {
 } from '@mui/material';
 // components
 import Grid from '@mui/material/Unstable_Grid2';
-
+import MenuItem from '@mui/material/MenuItem';
 
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -37,9 +37,14 @@ import Label from '../../components/label';
 import { UserListHead, UserListToolbar } from '../../sections/@dashboard/user';
 // mock
 
-
 import adminService from '../../services/admin.service';
+
+import partnerService from '../../services/partner.service';
 import storeService from '../../services/store.service';
+import headerService from '../../services/header.service';
+import getService from '../../services/getEnum.service'
+
+import { convertStringToDate } from '../../utils/formatTime';
 // ----------------------------------------------------------------------
 const avatar ={
   avatarMaleUrl: `/assets/images/avatars/avatar_2.jpg`,
@@ -90,9 +95,12 @@ function applySortFilter(array, comparator, query) {
 
 export default function Partner() {  
 
+
+  const [success, setSuccess] = useState(false)
   const [page, setPage] = useState(0);
   const [open, setOpen] = useState(false);
-  const [address, setAddress] = useState({
+  const [openPartner, setOpenPartner] = useState(false);
+  const [addressStore, setAddressStore] = useState({
     district:"",
     province:"",
     ward:"",
@@ -102,6 +110,30 @@ export default function Partner() {
     name:"",
     description:""
   })
+
+  const [dateOfBirthText, setDateOfBirthText] = useState("");
+  const [name, setName] = useState("");
+  const [genders, setGenders] = useState([]);
+  const [gender, setGender] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState({
+    year: 2000,
+    month:1,
+    day:1
+  });
+  const [address, setAddress] = useState({
+    wardId:"",
+    street:""
+  })  
+  const [partnerTypes, setPartnerTypes] = useState([]);
+  const [partnerType, setPartnerType] = useState("");
+  const [userId, setUserId]  = useState("");
+
+  const [provines, setProvines] = useState([]);
+  const [provineId, setProvineId] = useState("");
+  const [districts, setDistricts] = useState([]);
+  const [districtId, setDistrictId] = useState("");
+  const [wards, setWards] = useState([]);
+  const [partnerId, setPartnerId] = useState("");
 
   const [openTime, setOpenTime] = useState("")
 
@@ -119,8 +151,117 @@ export default function Partner() {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
+  const handleChangeBirthDate = (event) => {    
+    const date = event.target.value.toString().split('-');
+    setDateOfBirthText(event.target.value)
+    setDateOfBirth({
+      year: parseInt(date[0], 10),
+      month: parseInt(date[1], 10),
+      day: date[2]
+    })
+  }
+
+  const handleWardId = (event) => { 
+         
+    setAddress(prevState => ({ ...prevState,
+      wardId:event.target.value,
+      street: ""
+    }))
+  }
+  const handleChangeStreet = (event) => {        
+    
+    setAddress(prevState => ({ ...prevState,
+      street:event.target.value}))
+  }
+  const handleChangeProvineId = (event) => {     
+    
+    getService.getAddressDistrictProvineId(event.target.value).then(
+      response =>{
+        console.log(response)
+        if(response.status === 200 && response.data.data) {
+
+          setDistricts(response.data.data.districts);
+          
+          setAddress({
+            wardId: "",
+            street: ""
+          })
+        } 
+      }
+    )
+    setProvineId(event.target.value)    
+  }
+
+  const handleChangeDistrictId = (event) => {  
+    getService.getAddressWardDistrictId(event.target.value).then(
+      response =>{
+        if(response.status === 200 && response.data.data) {
+          
+          setWards(response.data.data.wards);
+          setAddress({
+            wardId: "",
+            street: ""
+          })
+        }        
+      }
+    )
+    setDistrictId(event.target.value)
+  }
+  
+  const handleChangeType = (event) => {    
+      
+    setPartnerType(event.target.value)
+  }
+  
+
+  
+  
+  const handleChangeGender = (event) => {        
+    setGender(event.target.value)
+  }
+  const handleChangeName = (event) =>{
+    setName(event.target.value)
+  }
+
   const handleClickEdit = (id, name) => {
-    alert(`edit ${id}  ${name}`)
+    partnerService.GetPartnerById(id).then(
+      response => {
+        if(response.data && response.data.success === true) {
+          const temp = response.data.data.partner
+          console.log(temp)
+          setPartnerId(temp.id)
+          setName(temp.name)
+          setGender(temp.gender)
+          setDateOfBirth(temp.dateOfBirth)
+          
+          setDateOfBirthText(convertStringToDate(temp.dateOfBirth))
+          setDistrictId(temp.address.ward.district.id)
+          setProvineId(temp.address.ward.province.id )
+          setPartnerType(temp.partnerType)
+          getService.getAddressDistrictProvineId(temp.address.ward.province.id).then(
+            response =>{
+              if(response.status === 200 && response.data.data) {
+                setDistricts(response.data.data.districts);
+                setDistrictId(temp.address.ward.district.id)
+                getService.getAddressWardDistrictId(temp.address.ward.district.id).then(
+                  response =>{
+                    if(response.status === 200 && response.data.data) {                      
+                      setWards(response.data.data.wards);
+                      setAddress({
+                        wardId:temp.address.ward.id,
+                        street: temp.address.street
+                      })
+                    }        
+                  }
+                )
+              } 
+            }
+          )
+          
+        }
+      }
+    )
+    setOpenPartner(true)
   };
   const handleClickDelete = (id) => {
     alert(`delete ${id}`)
@@ -137,7 +278,7 @@ export default function Partner() {
 
   const handleClickCancel = () => {
     setOpen(false);
-    setAddress({
+    setAddressStore({
       district:"",
       province:"",
       ward:"",
@@ -149,6 +290,8 @@ export default function Partner() {
     })
     setCloseTime("")
     setOpenTime("")
+    setOpenPartner(false);
+
   }
   
   const handleChangePage = (event, newPage) => {
@@ -165,6 +308,37 @@ export default function Partner() {
     setFilterName(event.target.value);
     setSelected([]);
   };
+  const handleClickSave = () =>{
+    partnerService.PutPartnerById(partnerId,name,gender,dateOfBirth,address,partnerType).then(
+      response => {
+        if(response.data && response.data.success === true) {
+          alert("Update Success");
+          setOpenPartner(false);
+          clearScreen();
+          window.location.reload();
+        }
+      }, error => {
+        alert("Có lỗi")
+      }
+    )
+  }
+
+  const clearScreen = () => {
+    setName("");
+    setDateOfBirthText("");
+    setAddress({
+      wardId: "",
+      street: ""
+    })
+    setPartnerType("");
+    setDistrictId("");
+    setAddressStore({
+      district: "",
+      province: "",
+      ward: "",
+      street: ""
+    })
+  }
   
 
   const handleClickStore = (id) => {
@@ -174,7 +348,7 @@ export default function Partner() {
           const temp = response.data.data.store
           console.log(temp)
           setOpen(true);
-          setAddress({
+          setAddressStore({
             district: temp.address.ward.district.fullName,
             street: temp.address.street,
             province: temp.address.ward.province.fullName,
@@ -202,7 +376,8 @@ export default function Partner() {
 
   const isNotFound = !filteredDatas.length && !!filterName;
   useEffect(() =>{
-    adminService.partnerAll().then(
+    
+    partnerService.partnerAll().then(
       response => {
         if(response && response.status === 200 && response.data.success && response.data.data) {
           console.log("partner ==>",response.data.data.partners)
@@ -210,10 +385,53 @@ export default function Partner() {
         }
         
       }, error =>{
-        console.log("Error Partner",error)
+        if(error.response && error.response.status === 401) {
+          console.log("Error Partner",error.response)
+          const token = headerService.refreshToken();
+          adminService.refreshToken(token).then(
+            response=>{
+              if(response.data ) {
+                console.log(response.data)
+                localStorage.setItem("token", JSON.stringify(response.data.data));
+                setSuccess(true)
+              }
+            }
+          )
+          
+        }
+        
       }
     )
-  },[])
+    getService.getValuesGender().then(
+      response =>{
+        if(response.data && response.status === 200) {
+          const arrayGender  = response.data.data.genderValue;        
+             
+          setGenders(arrayGender)
+        }
+        
+      }, error => {
+        console.log(error)
+      }
+    )
+    getService.getValuesPartnerType().then(
+      response =>{
+        if(response.status === 200 && response.data.data) {
+          
+          setPartnerTypes(response.data.data.partnerTypValue);
+        }
+        
+      }
+    )
+    
+    getService.getAddressProvines().then(
+      response =>{
+        if(response.data && response.status === 200){
+          setProvines(response.data.data.provines);          
+        }
+      }
+    )
+  },[success])
 
   return (
     <>
@@ -340,34 +558,34 @@ export default function Partner() {
         </Card>
       </Container>
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>New Store</DialogTitle>
+        <DialogTitle> Store</DialogTitle>
         <DialogContent>
         <Grid container spacing={2}>
           <Grid item xs={12}>
+          <Label>Name</Label>
             <TextField 
               name="name" 
-              label="Store Name" 
+              
               fullWidth
-              value={store.name} 
-              required
+              value={addressStore.name} 
               disabled
               />
           </Grid>
           <Grid item xs={12}>
+          <Label>Description</Label>
             <TextField 
-              name="description" 
-              label="Description" 
-              value={store.description} 
+              name="description"  
+              value={addressStore.description} 
               fullWidth
-              required
+              disabled
               
               />
           </Grid>
           <Grid item xs={6}>
+          <Label>Province</Label>
           <TextField
-                  label="province"
                   fullWidth                  
-                  value={address.province}
+                  value={addressStore.province}
                   id="country"       
                   disabled   
                   
@@ -376,11 +594,12 @@ export default function Partner() {
           
           </Grid>
           <Grid item xs={6}>
+          <Label>District</Label>
           <TextField
-                  label="District"                 
+                                   
                   
                   fullWidth
-                  value={address.district}
+                  value={addressStore.district}
                   id="country" 
                   disabled
                   
@@ -388,13 +607,13 @@ export default function Partner() {
                
           </Grid>
           <Grid item xs={4}>
+          <Label>Ward</Label>
           <TextField
-                  label="Ward"
                   fullWidth                  
                   variant="outlined"
-                  value={address.ward}
+                  value={addressStore.ward}
                   id="country"      
-                  
+                  disabled
                 />
                   
           </Grid>
@@ -403,7 +622,7 @@ export default function Partner() {
             name="street" 
             label="Street" 
             disabled
-            value={address.street}             
+            value={addressStore.street}             
            
             />
           </Grid>
@@ -435,6 +654,136 @@ export default function Partner() {
           
         </DialogActions>
       </Dialog>
+      <Dialog open={openPartner} onClose={handleClose}>
+        <DialogTitle> Partner</DialogTitle>
+        <DialogContent>
+        <Grid container spacing={2}>
+        <Grid item xs={7}>
+      <Label>FullName</Label>
+        <TextField 
+        name="name" 
+        fullWidth
+        value={name} 
+        required
+        onChange={(event) => { handleChangeName(event) }}
+        />      
+      </Grid>
+      <Grid item xs={5}>
+      <Label>DateOfBirth</Label>
+      <TextField 
+        fullWidth
+        type="date"        
+        required
+        value={dateOfBirthText}
+        onChange={(event) => { handleChangeBirthDate(event) }}
+        />  
+      </Grid>
+      <Grid item xs={4}>
+      <Label>Gender</Label>
+      <TextField
+                  fullWidth
+                  select
+                  value={gender}
+                  id="country"        
+                  onChange= {handleChangeGender}
+                >
+                  {genders  && Array.isArray(genders) && genders.map((option) => (
+             <MenuItem key={option} value={option}>
+              {option}
+            </MenuItem>
+          )
+          )}
+                  </TextField>       
+    </Grid>
+      <Grid item xs={8}>
+      <Label>Provine</Label>
+      <TextField
+                  fullWidth
+                  select
+                  value={provineId}
+                  id="country"       
+                  onChange= {handleChangeProvineId}
+                >
+                  {provines  && provines.map((option) => (
+             <MenuItem key={option.id} value={option.id}>
+              {option.name}
+            </MenuItem>
+          )
+          )}
+          </TextField>      
+    </Grid>
+    <Grid item xs={6}>
+    <Label>District</Label>
+      <TextField
+                  fullWidth
+                  select
+                  value={districtId}
+                  id="country"         
+                  onChange= {handleChangeDistrictId}
+                >
+                  {districts  && districts.map((option) => (
+             <MenuItem key={option.id} value={option.id}>
+              {option.name}
+            </MenuItem>
+          )
+          )}
+            </TextField>  
+    </Grid>
+    <Grid item xs={6}>
+    <Label>Ward</Label>
+      <TextField
+                  fullWidth
+                  select
+                  value={address.wardId}
+                  id="country"       
+                  onChange= {handleWardId}
+                >
+                  {wards  && wards.map((option) => (
+             <MenuItem key={option.id} value={option.id}>
+              {option.name}
+            </MenuItem>
+          )
+          )}
+            </TextField>
+    </Grid>
+    <Grid item xs={8}>
+    <Label>Street</Label>
+        <TextField 
+        fullWidth
+        name="street" 
+        value={address.street} 
+        required
+        onChange={(event) => { handleChangeStreet(event) }}
+        />
+    </Grid>
+    <Grid item xs={4}>
+    <Label>Partner Type</Label>
+    <TextField
+                  fullWidth
+                  select
+                  value={partnerType}
+                  id="country"    
+                  onChange= {handleChangeType}
+                >
+                  {partnerTypes && Array.isArray(partnerTypes)  && partnerTypes.map((option) => (
+             <MenuItem key={option} value={option}>
+              {option}
+            </MenuItem>
+          )
+          )}
+                  </TextField>
+    </Grid>
+    
+        </Grid> 
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClickCancel}>Cancel</Button>
+          <Button onClick={handleClickSave}>Save</Button>
+          
+        </DialogActions>
+      </Dialog>
+
+
     </>
   );
 }

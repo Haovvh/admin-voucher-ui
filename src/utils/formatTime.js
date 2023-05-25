@@ -1,5 +1,6 @@
 import { format, getTime, formatDistanceToNow } from 'date-fns';
 
+
 // ----------------------------------------------------------------------
 
 export function fDate(date, newFormat) {
@@ -24,4 +25,28 @@ export function fToNow(date) {
         addSuffix: true,
       })
     : '';
+}
+export function convertStringToDate(temp) {
+  const year = temp.year  
+  let month = temp.month
+  if (month.toString().length === 1) {
+    month = `0${temp.month}`
+  }
+  let day = temp.day
+  if (day.toString().length === 1) {
+    day = `0${temp.day}`
+  }
+  return `${year}-${month}-${day}`
+}
+
+export function convertStringToTime (temp)  {
+  let hour = temp.hour;
+  if (hour.toString().length === 1) {
+    hour = `0${temp.hour}`
+  }
+  let minute = temp.minute;
+  if (minute.toString().length === 1) {
+   minute = `0${temp.minute}`
+  }
+  return `${hour}:${minute}`
 }
