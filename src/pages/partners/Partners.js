@@ -315,7 +315,7 @@ export default function Partner() {
           alert("Update Success");
           setOpenPartner(false);
           clearScreen();
-          window.location.reload();
+          setSuccess(!success)
         }
       }, error => {
         alert("Có lỗi")
@@ -380,20 +380,18 @@ export default function Partner() {
     partnerService.partnerAll().then(
       response => {
         if(response && response.status === 200 && response.data.success && response.data.data) {
-          console.log("partner ==>",response.data.data.partners)
           setPartners(response.data.data.partners)
         }
         
       }, error =>{
         if(error.response && error.response.status === 401) {
-          console.log("Error Partner",error.response)
           const token = headerService.refreshToken();
           adminService.refreshToken(token).then(
             response=>{
               if(response.data ) {
                 console.log(response.data)
                 localStorage.setItem("token", JSON.stringify(response.data.data));
-                setSuccess(true)
+                setSuccess(!success)
               }
             }
           )
@@ -505,9 +503,7 @@ export default function Partner() {
                           <IconButton size="large" color="inherit" onClick={()=>handleClickEdit(id, userName)}>
                           <Iconify icon={'eva:edit-fill'}  sx={{ mr: 2 }} />                          
                           </IconButton>
-                          <IconButton size="large" color="inherit" onClick={()=>handleClickDelete(id, userName)}>
-                          <Iconify  icon={'eva:trash-2-outline'} color="red" sx={{ mr: 2 }} />                        
-                          </IconButton>
+                          
                         </TableCell>
                       </TableRow>
                     );
@@ -567,7 +563,7 @@ export default function Partner() {
               name="name" 
               
               fullWidth
-              value={addressStore.name} 
+              value={store.name} 
               disabled
               />
           </Grid>
@@ -575,7 +571,7 @@ export default function Partner() {
           <Label>Description</Label>
             <TextField 
               name="description"  
-              value={addressStore.description} 
+              value={store.description} 
               fullWidth
               disabled
               
@@ -618,9 +614,9 @@ export default function Partner() {
                   
           </Grid>
           <Grid item xs={8}>
+          <Label>Street</Label>
             <TextField 
             name="street" 
-            label="Street" 
             disabled
             value={addressStore.street}             
            

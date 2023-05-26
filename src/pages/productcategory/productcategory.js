@@ -33,6 +33,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
+import DialogContentText from '@mui/material/DialogContentText';
 // components
 import Label from '../../components/label';
 import Iconify from '../../components/iconify';
@@ -41,6 +42,8 @@ import Scrollbar from '../../components/scrollbar';
 
 
 import getService from '../../services/getEnum.service'
+import headerService from '../../services/header.service';
+import adminService from '../../services/admin.service';
    
 import productcategoryService from '../../services/productcategory.service';
 
@@ -91,6 +94,8 @@ function applySortFilter(array, comparator, query) {
   return stabilizedThis.map((el) => el[0]);
 }
 
+const statusEnable = ["Enable             ", "Disable          "]
+
 export default function ProductCategory() {  
   
   const [success, setSuccess] = useState(false);
@@ -114,6 +119,10 @@ export default function ProductCategory() {
 
   const [productCategoryId, setProductCategoryId] = useState("");
 
+  const [openEnable, setOpenEnable] = useState(false);
+
+  const [isEnable, setIsEnable] = useState("");
+
   const handleChangeName = (event) => {
     setName(event.target.value) 
   }
@@ -121,11 +130,15 @@ export default function ProductCategory() {
   const handlechangeDescription = (event) => {
     setDescription(event.target.value) 
   }
-  const handleClickClose = () => {
-    setOpen(false)    
+  const handleChangeStatusEnable = (event) =>{
+    setIsEnable(event.target.value)
   }
+  
   const handleClose = () => {
-    setOpen(false)    
+    setOpen(false)   
+    setOpenEnable(false)
+
+    clearScreen(); 
   }
   const handleClickEdit = (id, name) => {
     productcategoryService.GetProductCategoryById(id).then(
@@ -188,14 +201,55 @@ export default function ProductCategory() {
     setOpen(true);
     
   }
-  const handleClickCancel = () => {
-    setOpen(false);
+  const handleClickSubmitEnable = () => {
+    if(isEnable) {
+      if(isEnable === statusEnable[0]) {
+        productcategoryService.EnablePutProductCategoryById(productCategoryId).then(
+          response => {
+            if(response.data  && response.data.success) {
+              alert("Enable ProductCategory success");
+              setOpenEnable(false)
+              setSuccess(!success)
+            }
+          }
+        )
+        
+      } 
+      else if(isEnable === statusEnable[1]) {
+        productcategoryService.DisablePutProductCategoryById(productCategoryId).then(
+          response => {
+            if(response.data  && response.data.success) {
+              alert("Disable ProductCategory success");
+              setOpenEnable(false)
+              setSuccess(!success)
+            }
+            
+          }
+        )        
+      }
+    } else {
+      alert("Please choose Status");
+    }
+  }
+
+  const handleClickEditEnable = (id) =>{    
+    setProductCategoryId(id);
+    setOpenEnable(true)
     
   }
+  
+  
   const clearScreen = () =>{
     setProductCategoryId("");
     setName("");
     setDescription("");
+    setIsEnable("")
+  }
+  const handleClickCancel = () => {  
+    setOpen(false);  
+    setOpenEnable(false)
+    
+    clearScreen()
   }
 
   const handleClickSubmit = () => {
@@ -250,8 +304,21 @@ export default function ProductCategory() {
           setProductCategorys(response.data.data.productCategories)
           setSuccess(false)
         }
-      }, error => {
-        console.log("Error productCategories ==>",error)
+      }, error =>{
+        if(error.response && error.response.status === 401) {
+          const token = headerService.refreshToken();
+          adminService.refreshToken(token).then(
+            response=>{
+              if(response.data ) {
+                console.log(response.data)
+                localStorage.setItem("token", JSON.stringify(response.data.data));
+                setSuccess(!success)
+              }
+            }
+          )
+          
+        }
+        
       }
     )
     
@@ -302,8 +369,9 @@ export default function ProductCategory() {
                         <TableCell align="left">{description}</TableCell>
 
                         <TableCell align="left">
-                          {isEnable ? <Label color="success">{sentenceCase('Yes')}</Label>: 
-                          <Label color="warning">{sentenceCase('No')}</Label>}
+                        {(isEnable === true ) ? 
+                          (<Button className='btn btn-primary' onClick={() => handleClickEditEnable(id)}>Enable</Button>):                           
+                          (<Button className='btn btn-warning' onClick={() => handleClickEditEnable(id)}>Disable</Button>)}
                         </TableCell>                         
 
                         <TableCell align="right">                        
@@ -396,7 +464,38 @@ export default function ProductCategory() {
           <Button onClick={handleClickSubmit}>Submit</Button>
         </DialogActions>
       </Dialog>
-      
+      <Dialog open={openEnable} onClose={handleClose}>
+        <DialogTitle>Edit Enable</DialogTitle>
+        <DialogContent> 
+        <DialogContentText>
+            Please choose Enable or Disable.
+          </DialogContentText>
+          <Grid container spacing={2}>
+          <Grid item xs={12}>
+          <TextField
+                  label="Status"
+                  fullWidth
+                  select
+                  variant="outlined"
+                  value={isEnable}
+                  id="country"      
+                  onChange= {handleChangeStatusEnable}
+                >
+                  {statusEnable  && statusEnable.map((option) => (
+             <MenuItem key={option} value={option}>
+              {option}
+            </MenuItem>
+          )
+          )}
+            </TextField>  
+          </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClickCancel}>Cancel</Button>
+          <Button onClick={handleClickSubmitEnable}>Submit</Button>
+        </DialogActions>
+      </Dialog>
       
     </>
   );

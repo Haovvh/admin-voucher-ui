@@ -33,6 +33,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
+import DialogContentText from '@mui/material/DialogContentText';
 // components
 import Label from '../../components/label';
 import Iconify from '../../components/iconify';
@@ -41,7 +42,7 @@ import Scrollbar from '../../components/scrollbar';
 
 
 import getService from '../../services/getEnum.service'
-   
+import headerService from '../../services/header.service';
 import adminService from '../../services/admin.service';
 import gameService from '../../services/game.service';
 
@@ -52,7 +53,7 @@ import { UserListHead, UserListToolbar } from '../../sections/@dashboard/user';
 import searchPartner from '../../utils/searchPartner';
 
 // ----------------------------------------------------------------------
-
+const statusEnable = ["Enable             ", "Disable          "]
 
 
 const TABLE_HEAD = [
@@ -115,12 +116,47 @@ export default function Game() {
 
   const [games, setGames] = useState([])
 
+  const [openEnable, setOpenEnable] = useState(false);
+
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [isEnable, setIsEnable] = useState("");
   const [gameId, setGameId] = useState("");
   const [imageUrl, setImageUrl] = useState("/DummyImages/Games/lucky-wheel.jpg")
 
   const handleChangeName = (event) => {
     setName(event.target.value) 
+  }
+
+  const handleChangeStatusEnable = () => {
+    if(isEnable) {
+      if(isEnable === statusEnable[0]) {
+        gameService.PutEnableGameById(gameId).then(
+          response => {
+            if(response.data  && response.data.success === true) {
+              alert("Enable Success");
+              setOpenEnable(false)
+              setSuccess(!success)
+              setIsEnable("")
+            }
+          }
+        )        
+      } 
+      else if(isEnable === statusEnable[1]) {
+        gameService.PutDisableGameById(gameId).then(
+          response => {
+            if(response.data  && response.data.success === true) {
+              alert("Disable Success");
+              setOpenEnable(false)
+              setSuccess(!success)
+              setIsEnable("")
+            }
+            
+          }
+        )        
+      }
+    } else {
+      alert("Please choose Status");
+    }
   }
 
   const handlechangeInstruction = (event) => {
@@ -133,12 +169,14 @@ export default function Game() {
   const handlechangeDescription = (event) => {
     setDescription(event.target.value) 
   }
-  const handleClickClose = () => {
-    setOpen(false)    
+  const handleClickChange = (event) => {
+    setIsEnable(event.target.value)
   }
+  
   const handleClose = () => {
     setOpen(false)    
     clearScreen();
+    setOpenEnable(false)
   }
   const handleClickEdit = (id, name) => {
     gameService.GetGameById(id).then(
@@ -175,6 +213,11 @@ export default function Game() {
    
   };
 
+  const handleClickEnable = (id) => {
+    setGameId(id)
+    setOpenEnable(true)
+  }
+
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -203,14 +246,18 @@ export default function Game() {
   }
   const handleClickCancel = () => {
     setOpen(false);
-    
+    clearScreen()
+    setOpenEnable(false)
   }
   const clearScreen = () => {
-    setSuccess(true)
+    
     setName("");
     setDescription("");
     setInstruction("");
     setGameId("");
+    setIsEnable("");
+    setIsEnable("")
+    
   }
   const handleClickSubmit = () => {
     if (name && description && instruction) {
@@ -267,8 +314,21 @@ export default function Game() {
         }
         
 
-      }, error => {
-        console.log("Error Game",error)
+      },  error =>{
+        if(error.response && error.response.status === 401) {
+          const token = headerService.refreshToken();
+          adminService.refreshToken(token).then(
+            response=>{
+              if(response.data ) {
+                console.log(response.data)
+                localStorage.setItem("token", JSON.stringify(response.data.data));
+                setSuccess(!success)
+              }
+            }
+          )
+          
+        }
+        
       }
     )
     
@@ -323,8 +383,10 @@ export default function Game() {
                         <TableCell align="left">{imageUrl}</TableCell>
 
                         <TableCell align="left">
-                          {isEnable ? <Label color="success">{sentenceCase('Yes')}</Label>: 
-                          <Label color="warning">{sentenceCase('No')}</Label>}
+                        {(isEnable === true ) ? 
+                          (<Button className='btn btn-primary' onClick={() => handleClickEnable(id)}>Enable</Button>):                           
+                          (<Button className='btn btn-warning' onClick={() => handleClickEnable(id)}>Disable</Button>)}
+                          
                         </TableCell> 
 
                         
@@ -439,7 +501,42 @@ export default function Game() {
           <Button onClick={handleClickSubmit}>Submit</Button>
         </DialogActions>
       </Dialog>
-      
+      <Dialog open={openEnable} onClose={handleClose}>
+      <DialogTitle>Edit Enable</DialogTitle>
+        <DialogContent> 
+        <DialogContentText>
+            Please choose Enable or Disable.
+          </DialogContentText>
+        <Grid container spacing={2}>
+
+        <Grid xs={12}>
+          <Label>Status</Label>
+          <TextField
+                  fullWidth
+                  select
+                  variant="outlined"
+                  value={isEnable}
+                  id="country"      
+                  onChange= {handleClickChange}
+                >
+           {statusEnable  && statusEnable.map((option) => (
+             <MenuItem key={option} value={option}>
+              {option}
+            </MenuItem>
+          )
+          )}
+          </TextField>
+        </Grid> 
+        
+        
+        </Grid>
+        
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClickCancel}>Cancel</Button>
+          <Button onClick={handleChangeStatusEnable}>Change</Button>
+        </DialogActions>
+      </Dialog>
       
     </>
   );

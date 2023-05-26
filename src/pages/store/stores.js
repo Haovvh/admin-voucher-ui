@@ -41,7 +41,8 @@ import { UserListHead, UserListToolbar } from '../../sections/@dashboard/user';
 import { convertStringToTime } from '../../utils/formatTime';
 import storeService from '../../services/store.service';
 import getService from '../../services/getEnum.service'
-
+import headerService from '../../services/header.service';
+import adminService from '../../services/admin.service';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -118,7 +119,7 @@ export default function Store() {
 
   const [openStore, setOpenStore] = useState(false);
 
-  const [isEdit, setIsEdit] = useState(false)
+  const [success, setSuccess] = useState(false)
 
   const [openTime, setOpenTime] = useState({
     hour: 0,
@@ -301,8 +302,7 @@ export default function Store() {
   }
   const handleClickEditEnable = (id) =>{    
     setStoreId(id);
-    setOpenEnable(true)
-    
+    setOpenEnable(true)    
   }
   const handleChangeStatusApprove = (event) =>{
     setIsApprove(event.target.value)
@@ -324,9 +324,9 @@ export default function Store() {
         storeService.StoreApproveStoreId(storeId).then(
           response => {
             if(response.data && response.status === 200 && response.data.success) {
-              alert("success");
+              alert("Approve Store success");
               setOpen(false)
-              setIsEdit(true)
+              setSuccess(!success)
             }
           }
         )
@@ -336,9 +336,9 @@ export default function Store() {
         storeService.StoreRejecteStoreId(storeId).then(
           response => {
             if(response.data && response.status === 200 && response.data.success) {
-              alert("success");
+              alert("Rejecte Store success");
               setOpen(false)
-              setIsEdit(true)
+              setSuccess(!success)
             }
             
           }
@@ -358,9 +358,9 @@ export default function Store() {
         storeService.StoreEnableStoreId(storeId).then(
           response => {
             if(response.data && response.status === 200 && response.data.success) {
-              alert("success");
+              alert("Enable Store success");
               setOpenEnable(false)
-              setIsEdit(true)
+              setSuccess(!success)
             }
           }
         )
@@ -370,9 +370,9 @@ export default function Store() {
         storeService.StoreDisableStoreId(storeId).then(
           response => {
             if(response.data && response.status === 200 && response.data.success) {
-              alert("success");
+              alert("Disable Store success");
               setOpenEnable(false)
-              setIsEdit(true)
+              setSuccess(!success)
             }
             
           }
@@ -402,7 +402,6 @@ export default function Store() {
         }
       }
     )
-    setIsEdit(false);
     storeService.StoreAll().then(
       response =>{
         if(response.data  && response.data.success) {
@@ -410,11 +409,24 @@ export default function Store() {
           setStores(response.data.data.stores)
         }
         
-      }, error => {
-        console.log("Error Store =>",error)
+      }, error =>{
+        if(error.response && error.response.status === 401) {
+          const token = headerService.refreshToken();
+          adminService.refreshToken(token).then(
+            response=>{
+              if(response.data ) {
+                console.log(response.data)
+                localStorage.setItem("token", JSON.stringify(response.data.data));
+                setSuccess(!success)
+              }
+            }
+          )
+          
+        }
+        
       }
     )
-  },[isEdit])
+  },[success])
 
   return (
     <>
@@ -486,10 +498,7 @@ export default function Store() {
                         <TableCell align="right">                        
                           <IconButton size="large" color="inherit" onClick={()=>handleClickEdit(id)}>
                           <Iconify icon={'eva:edit-fill'}  sx={{ mr: 2 }} />                          
-                          </IconButton>
-                          <IconButton size="large" color="inherit" onClick={()=>handleClickDelete(id)}>
-                          <Iconify  icon={'eva:trash-2-outline'} color="red" sx={{ mr: 2 }} />                        
-                          </IconButton>
+                          </IconButton>                          
                         </TableCell>
                       </TableRow>
                     );

@@ -24,6 +24,21 @@ const DeleteGameById = (gameId) => (
 })
 );
 
+const PutDisableGameById = (gameId) => (
+  axios.put(`${process.env.REACT_APP_API_URL}/Game/Disable/${gameId}`, {
+
+  },{ 
+    headers: headerService.accessToken()
+})
+);
+const PutEnableGameById = (gameId) => (
+  axios.put(`${process.env.REACT_APP_API_URL}/Game/Enable/${gameId}`, {
+    
+  },{ 
+    headers: headerService.accessToken()
+})
+);
+
 const PutGameById = (name, description, instruction, gameId, isEnable = true,  imageUrl="/DummyImages/Games/lucky-wheel.jpg") => (
   axios.put(`${process.env.REACT_APP_API_URL}/Game/${gameId}`,{
     name, description, instruction, isEnable, imageUrl
@@ -39,6 +54,7 @@ const PostGame = (name, description, instruction, imageUrl="/DummyImages/Games/l
 })
 );
 
+
 export default  {
 
   GameAll,
@@ -46,6 +62,7 @@ export default  {
   GetGameById,
   PostGame,
   PutGameById,
-  DeleteGameById
-
+  DeleteGameById,
+  PutDisableGameById,
+  PutEnableGameById
 }
