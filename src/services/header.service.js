@@ -32,10 +32,11 @@ const userName = () => {
 const GetUser = () => (
   JSON.parse(localStorage.getItem('user'))
 );
-
-export default {
+const headerService = {
   accessToken,
   refreshToken,
-  GetUser, 
-  userName
+  userName,
+  GetUser
 }
+
+export default headerService

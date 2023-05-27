@@ -309,7 +309,7 @@ export default function ProductCategory() {
           const token = headerService.refreshToken();
           adminService.refreshToken(token).then(
             response=>{
-              if(response.data ) {
+              if(response.data && response.data.success === true) {
                 console.log(response.data)
                 localStorage.setItem("token", JSON.stringify(response.data.data));
                 setSuccess(!success)
@@ -438,9 +438,9 @@ export default function ProductCategory() {
         <br/>
         <Grid container spacing={2}>
           <Grid xs={12}>
+          <Label>Name</Label>
           <TextField 
             name="name" 
-            label="Name" 
             fullWidth
             value={name} 
             required
@@ -448,9 +448,9 @@ export default function ProductCategory() {
             />
           </Grid>
           <Grid xs={12}>
+          <Label>Description</Label>
           <TextField 
             name="description" 
-            label="Description" 
             value={description} 
             fullWidth
             required
@@ -472,8 +472,8 @@ export default function ProductCategory() {
           </DialogContentText>
           <Grid container spacing={2}>
           <Grid item xs={12}>
+          <Label>Status</Label>
           <TextField
-                  label="Status"
                   fullWidth
                   select
                   variant="outlined"

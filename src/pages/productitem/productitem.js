@@ -5,11 +5,9 @@ import { useEffect, useState } from 'react';
 // @mui
 import {
   Card,
-  Box,
   Table,
   Stack,
   Paper,
-  Avatar,
   Button,  
   TableRow,  
   TableBody,
@@ -19,15 +17,12 @@ import {
   IconButton,
   TableContainer,
   TablePagination,
-  InputLabel,
-  Select,
   TextField,
   MenuItem,
-  Modal 
+
 } from '@mui/material';
 
 import Grid from '@mui/material/Unstable_Grid2';
-
 
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -41,29 +36,28 @@ import Scrollbar from '../../components/scrollbar';
 
 
 
-import getService from '../../services/getEnum.service'
+   
+import productcategoryService from '../../services/productcategory.service';
+import productItemService from '../../services/productitem.service';
 import headerService from '../../services/header.service';
-import adminService from '../../services/admin.service';
-import gameService from '../../services/game.service';
-import imageService from '../../services/image.service';
+import partnerService from '../../services/partner.service';
 // sections
 import { UserListHead, UserListToolbar } from '../../sections/@dashboard/user';
 // mock
 
-import searchPartner from '../../utils/searchPartner';
+
 
 // ----------------------------------------------------------------------
-const statusEnable = ["Enable             ", "Disable          "]
-
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
-  { id: 'description', label: 'Description', alignRight: false },
-  { id: 'instruction', label: 'Instruction', alignRight: false },
-  { id: 'imageUrl', label: 'Image', alignRight: false },
+  { id: 'description', label: 'Description', alignRight: false },  
+  { id: 'price', label: 'Price', alignRight: false },
+  { id: 'imageUrl', label: 'Image', alignRight: false },  
+  { id: 'productCategory', label: 'ProductCategory', alignRight: false },  
   { id: 'isEnable', label: 'Enable', alignRight: false },
-  { id: '' },
 ];
+
 
 // ----------------------------------------------------------------------
 
@@ -97,9 +91,11 @@ function applySortFilter(array, comparator, query) {
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function Game() {  
-  const [instruction, setInstruction] = useState("")
+const statusEnable = ["Enable             ", "Disable          "]
+
+export default function ProductItem() {  
   const [success, setSuccess] = useState(false)
+  
   const [open, setOpen] = useState(false);
   const [page, setPage] = useState(0);
 
@@ -107,6 +103,7 @@ export default function Game() {
   const [name, setName] = useState("");
 
   const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
 
   const [selected, setSelected] = useState([]);
 
@@ -114,23 +111,34 @@ export default function Game() {
 
   const [filterName, setFilterName] = useState('');
 
-  const [games, setGames] = useState([])
-
-  const [openEnable, setOpenEnable] = useState(false);
+  const [productItems, setProductItems] = useState([])
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [isEnable, setIsEnable] = useState("");
-  const [gameId, setGameId] = useState("");
-  const [imageUrl, setImageUrl] = useState("")
 
-  const handleChangeName = (event) => {
-    setName(event.target.value) 
+  const [productCategoryId, setProductCategoryId] = useState("");
+
+  const [productCategories, setProductCategories] = useState("");
+
+  const [productItemId, setProductItemId]  = useState("");
+  
+  const [imageUrl, setImageUrl] = useState("/Image/ProductItem");
+
+  const [isEnable, setIsEnable] = useState("");
+  const [openEnable, setOpenEnable] = useState(false);
+
+  const handleClickEnable = (id) => {
+    setProductItemId(id)
+    
+  }
+
+  const handleClickChange = (event) => {
+    setIsEnable(event.target.value)
   }
 
   const handleChangeStatusEnable = () => {
     if(isEnable) {
       if(isEnable === statusEnable[0]) {
-        gameService.PutEnableGameById(gameId).then(
+        productItemService.PutEnableProductItemById(productItemId).then(
           response => {
             if(response.data  && response.data.success === true) {
               alert("Enable Success");
@@ -142,7 +150,7 @@ export default function Game() {
         )        
       } 
       else if(isEnable === statusEnable[1]) {
-        gameService.PutDisableGameById(gameId).then(
+        productItemService.PutDisableProductItemById(productItemId).then(
           response => {
             if(response.data  && response.data.success === true) {
               alert("Disable Success");
@@ -159,57 +167,46 @@ export default function Game() {
     }
   }
 
-  const handlechangeInstruction = (event) => {
-    setInstruction(event.target.value) 
+  
+
+  const handleChangeName = (event) => {
+    setName(event.target.value) 
   }
-  const handlechangeImageUrl = (event) => {
-    const file = event.target.files[0];
-    const reader = new FileReader();
 
-    reader.onloadend = () => {
-      setImageUrl(reader.result);
-    };
+  const handleChangePrice = (event) => {
+    setPrice(event.target.value) 
+  }
 
-    reader.readAsBinaryString(file);    
-   
-    imageService.ImageUpload(imageUrl).then(
-      response => {
-        if(response.data && response.data.success === true) {
-          console.log(response.data)
-        }
-        
-      }, error => {
-        console.log(error)
-      }
-    )
-    setImageUrl(event.target.value) 
+  const handleChangeProductCategory = (event) => {
+    setProductCategoryId(event.target.value)
+  }
+  const handleChangeImageURL = (event) => {
+    setImageUrl(event.target.value)
   }
 
   const handlechangeDescription = (event) => {
     setDescription(event.target.value) 
   }
-  const handleClickChange = (event) => {
-    setIsEnable(event.target.value)
-  }
-  
+ 
   const handleClose = () => {
     setOpen(false)    
-    clearScreen();
-    setOpenEnable(false)
   }
-  const handleClickEdit = (id, name) => {
-    gameService.GetGameById(id).then(
+  const handleClickEdit = (id) => {
+    
+    productItemService.GetProductItemById(id).then(
       response => {
-        if(response.data && response.data.success) {
-          const temp = response.data.data.game
+        if (response.data && response.data.success) {
+          const temp = response.data.data.productItem
+          setOpen(true)  
           console.log(temp)
-          setGameId(temp.id);
+          setProductItemId(temp.id)
           setName(temp.name);
-          setDescription(temp.description)
-          setInstruction(temp.instruction)
-          setImageUrl(temp.imageUrl);
-          setOpen(true)
+          setDescription(temp.description);
+          setPrice(temp.price)
+          setProductCategoryId(temp.productCategory.id)
+          setImageUrl(temp.imageUrl)
         }
+        
       }, error => {
         console.log(error)
       }
@@ -217,7 +214,7 @@ export default function Game() {
   };
   const handleClickDelete = (id) => {
     if(window.confirm("Are you want delete")) {
-      gameService.DeleteGameById(id).then(
+      productItemService.DeleteProductItemById(id).then(
         response => { 
           if (response.data && response.data.success) {
             alert("Delete Success")
@@ -225,17 +222,11 @@ export default function Game() {
           }
           
         }, error => {
-          alert("Dữ liệu đã tồn tại không thể xóa")
+          alert("Dữ liệu đã tồn tại.")
         }
       )
     }
-   
   };
-
-  const handleClickEnable = (id) => {
-    setGameId(id)
-    setOpenEnable(true)
-  }
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -265,89 +256,80 @@ export default function Game() {
   }
   const handleClickCancel = () => {
     setOpen(false);
-    clearScreen()
+    clearInput();
     setOpenEnable(false)
   }
-  const clearScreen = () => {
-    
+  const clearInput = () => {
     setName("");
     setDescription("");
-    setInstruction("");
-    setGameId("");
-    setIsEnable("");
-    setIsEnable("")
-    
+    setPrice(0);
+    setProductCategoryId(0)
+    setImageUrl("/Image/ProductItem")
+    setProductCategoryId("");
+    setProductItemId("");
   }
   const handleClickSubmit = () => {
-    if (name && description && instruction) {
-      if (gameId === "") {
-        gameService.PostGame(name, description,instruction).then(
-          response =>{
-            if(response.data && response.data.success && response.data.data) {
-              alert("Success");
-              setOpen(false); 
-              clearScreen();
-              setSuccess(!success)
-            }
-          }, error =>{
-            alert("Dữ liệu không phù hợp")
-    
-            console.log("Error submit games",error)
-          }
-        )
-      } else {
-        gameService.PutGameById(name, description, instruction, gameId ).then(
-          response =>{
-            if(response.data && response.data.success && response.data.data) {
-              alert("Update Success");
-              setOpen(false); 
-              clearScreen();
-              setSuccess(!success)
-            }
-          }, error =>{
-            alert("Dữ liệu không phù hợp")
-    
-            console.log("Error submit games",error)
-          }
-        )
-      }
+    if(productItemId === "") {
+      productItemService.PostProductItem(name, description,productCategoryId, price).then(
+        response => {
+          if(response.data && response.data.success) {
+            setSuccess(true);          
+            clearInput();
+            setOpen(false);    
+          }          
+        }, error => {
+          alert("Vui lòng kiểm tra dữ liệu")
+          console.log("Error Submit",error)
+        }
+      )
     } else {
-      alert("Vui lòng nhập đầy đủ thông tin")
+      productItemService.PutProductItemById(name, description, productCategoryId, price, imageUrl,  productItemId).then(
+        response => {
+          if(response.data && response.data.success) {
+            alert("Update Success")
+            setSuccess(true);          
+            clearInput();
+            setOpen(false);    
+          }
+          
+        }, error => {
+          alert("Vui lòng kiểm tra dữ liệu")
+          console.log("Error Submit",error)
+        }
+      )
     }
     
     
-       
   }
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - games.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - productItems.length) : 0;
 
-  const filteredUsers = applySortFilter(games, getComparator(order, orderBy), filterName);
+  const filteredDatas = applySortFilter(productItems, getComparator(order, orderBy), filterName);
 
-  const isNotFound = !filteredUsers.length && !!filterName;
+  const isNotFound = !filteredDatas.length && !!filterName;
   useEffect(() =>{
-    gameService.GameAll().then(
+    
+    productItemService.ProductItemAll().then(
       response =>{
-        if( response.data && response.data.success && response.data.data) {
-          console.log("Game",response.data.data)
-          setGames(response.data.data.games)
-          setSuccess(false)
+        if(response.data  && response.data.success) {
+          console.log(response.data.data)
+          setProductItems(response.data.data.productItems)
         }
-        
-
-      },  error =>{
+      }, error => {
         if(error.response && error.response.status === 401) {
+          console.log(error.response)
           const token = headerService.refreshToken();
-          adminService.refreshToken(token).then(
-            response=>{
-              if(response.data && response.data.success === true) {
-                console.log(response.data)
+          partnerService.refreshToken(token).then(
+            response => {
+              console.log(response.data)
+              if(response.data && response.data.success === true) {                
                 localStorage.setItem("token", JSON.stringify(response.data.data));
                 setSuccess(!success)
               }
+            }, error => {
+              console.log(error)
             }
           )
-          
-        }
-        
+        }        
       }
     )
     
@@ -356,17 +338,18 @@ export default function Game() {
   return (
     <>
       <Helmet>
-        <title> Games  </title>
+        <title> ProductItem  </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-          Games
+          ProductItem
           </Typography>
           <Button onClick={handleClickNew} variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-            New Game
+            New ProductItem
           </Button>
+          
         </Stack>
 
         <Card>
@@ -379,44 +362,37 @@ export default function Game() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={games.length}
+                  rowCount={productItems.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   
                 />
                 <TableBody>
-                  {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, name, description, instruction, imageUrl, isEnable } = row;
+                  {filteredDatas.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                    const { id, name, description, price, imageUrl, productCategory, isEnable } = row;
                     const selectedUser = selected.indexOf(name) !== -1;
 
                     return (
                       <TableRow hover key={id} tabIndex={-1} role="checkbox" selected={selectedUser}>
-                         
+                        
 
                         <TableCell align="left">{name}</TableCell>
 
                         <TableCell align="left">{description}</TableCell>
 
-                        <TableCell align="left">{instruction}</TableCell>
+                        <TableCell align="left">{price}</TableCell>
 
                         <TableCell align="left">{imageUrl}</TableCell>
+
+                        <TableCell align="left">{productCategory.name}</TableCell>
 
                         <TableCell align="left">
                         {(isEnable === true ) ? 
                           (<Button className='btn btn-primary' onClick={() => handleClickEnable(id)}>Enable</Button>):                           
                           (<Button className='btn btn-warning' onClick={() => handleClickEnable(id)}>Disable</Button>)}
-                          
-                        </TableCell> 
+                        </TableCell>                        
 
                         
-                        <TableCell align="right">                        
-                          <IconButton size="large" color="inherit" onClick={()=>handleClickEdit(id, name)}>
-                          <Iconify icon={'eva:edit-fill'}  sx={{ mr: 2 }} />                          
-                          </IconButton>
-                          <IconButton size="large" color="inherit" onClick={()=>handleClickDelete(id)}>
-                          <Iconify  icon={'eva:trash-2-outline'} color="red" sx={{ mr: 2 }} />                        
-                          </IconButton>
-                        </TableCell>
                       </TableRow>
                     );
                   })}
@@ -457,7 +433,7 @@ export default function Game() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={games.length}
+            count={productItems.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
@@ -467,54 +443,68 @@ export default function Game() {
 
       </Container>
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>New Game</DialogTitle>
+        <DialogTitle>New ProductItem</DialogTitle>
         <DialogContent>
-          <br/>
         <Grid container spacing={2}>
-
-        <Grid xs={12}>
-        <Label>Game</Label>
-        <TextField 
-        name="name" 
-        fullWidth
-        value={name} 
-        required
-        onChange={(event) => { handleChangeName(event) }}
-        />
-        </Grid>
-        <Grid xs={12}>
-        <Label>Description</Label>
-        <TextField 
-        name="description" 
-        value={description} 
-        fullWidth
-        required
-        onChange={(event) => { handlechangeDescription(event) }}
-        />
-        </Grid>
-        <Grid xs={12}>
-        <Label>Instruction</Label>
-        <TextField 
-        name="instruction" 
-        value={instruction} 
-        fullWidth
-        required
-        onChange={(event) => { handlechangeInstruction(event) }}
-        />  
-        </Grid>
-        <Grid xs={12}>
-        <Label>Image</Label>
-        <TextField 
-        name="imageUrl" 
-        type="file"
-        
-        fullWidth
-        required
-        onChange={(event) => { handlechangeImageUrl(event) }}
-        />  
-        {imageUrl && 
-        <img src={imageUrl} alt="==="/>}
-        </Grid>
+          <Grid xs={12}>
+          <Label>Name</Label>
+          <TextField 
+            name="name" 
+            fullWidth
+            value={name} 
+            required
+            onChange={(event) => { handleChangeName(event) }}
+            />
+          </Grid>
+          <Grid xs={12}>
+          <Label>Description</Label>
+          <TextField 
+            name="description" 
+            value={description} 
+            fullWidth
+            required
+            onChange={(event) => { handlechangeDescription(event) }}
+            />             
+          </Grid>
+          <Grid xs={12}>
+          <Label>Price</Label>
+            <TextField 
+              name="price" 
+              type="number"
+              value={price} 
+              fullWidth
+              required
+              onChange={(event) => { handleChangePrice(event) }}
+              />
+          </Grid>
+          <Grid xs={12}>
+          <Label>ProductCategory</Label>
+          <TextField
+                  fullWidth
+                  select
+                  variant="outlined"
+                  value={productCategoryId}
+                  id="country"      
+                  onChange= {handleChangeProductCategory}
+                >
+                  {productCategories  && productCategories.map((option) => (
+             <MenuItem key={option.id} value={option.id}>
+              {option.name}
+            </MenuItem>
+          )
+          )}
+            </TextField>
+          </Grid>
+          <Grid xs={12}>
+          <Label>Image</Label>
+            <TextField 
+              name="Image" 
+              value={imageUrl} 
+              fullWidth
+              required
+              onChange={(event) => { handleChangeImageURL(event) }}
+              />
+          </Grid>
         </Grid>
         
         </DialogContent>

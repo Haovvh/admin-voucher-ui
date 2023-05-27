@@ -27,6 +27,23 @@ const changePassword = (oldPassword, newPassword) =>(
     headers: headerService.accessToken()
 })
 );
+const PutAdminUpdate = (name, gender, dateOfBirth, address, position, department) =>(
+  axios.put(`${process.env.REACT_APP_API_URL}/Admin/Update`, {
+    accountUpdate:{
+      name, gender, dateOfBirth, address
+    },
+    position, 
+    department
+ }, { 
+   headers: headerService.accessToken()
+})
+);
+const AdminInfo = () => (
+  axios.get(`${process.env.REACT_APP_API_URL}/Admin/Info`,  { 
+   headers: headerService.accessToken()
+})
+)
+
 
 const partnerAll = () => (
   axios.get(`${process.env.REACT_APP_API_URL}/Admin/Partner/All`, { 
@@ -48,5 +65,7 @@ export default  {
   refreshToken,   
   changePassword,
   partnerAll,
-  endUserAll
+  endUserAll, 
+  PutAdminUpdate,
+  AdminInfo
 }
