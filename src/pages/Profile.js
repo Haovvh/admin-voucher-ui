@@ -192,11 +192,8 @@ export default function Profile() {
     } else {
       alert("Vui lòng nhập thông tin")
     }
-  }
-  
-  useEffect (()=>{
-    
-    
+  }  
+  useEffect (()=>{    
 
      getService.getValuesGender().then(
       response =>{
