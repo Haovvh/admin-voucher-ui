@@ -150,6 +150,60 @@ export default function Partner() {
   const [partners, setPartners] = useState([])
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [companyName, setCompanyName] = useState("")
+  const [businessCode, setBusinessCode] = useState("")
+  const [showCompany, setShowCompany] = useState(false);
+  const [provinesCompany, setProvinesCompany] = useState([]);
+  const [provineCompanyId, setProvineCompanyId] = useState("");
+  const [districtCompanyId, setDistrictCompanyId] = useState("");
+  const [districtsCompany, setDistrictsCompany] = useState([]);
+  const [wardsCompany, setWardsCompany] = useState([]);
+  const [wardId, setWardId] = useState("");
+  const [street, setStreet] = useState("");
+
+  const handleChangeCompanyWardId = (event) => {        
+    setWardId(event.target.value)
+    setStreet("")
+  }
+  const handleChangeCompanyStreet = (event) => {        
+    setStreet(event.target.value)
+  }
+  const handleChangeDistrictCompanyId = (event) => {  
+    getService.getAddressWardDistrictId(event.target.value).then(
+      response =>{
+        if(response.status === 200 && response.data.data) {
+          
+          setWardsCompany(response.data.data.wards);
+        }        
+      }
+    )
+        
+    setDistrictCompanyId(event.target.value)
+    setWardId("")
+    setStreet("")
+  }
+
+  const handleChangeProvineCompanyId = (event) => {   
+    getService.getAddressDistrictProvineId(event.target.value).then(
+      response =>{
+        if(response.status === 200 && response.data.data) {
+          setDistrictsCompany(response.data.data.districts);
+        } 
+      }
+    )
+    setDistrictCompanyId("");
+    setWardId("")
+    setStreet("")
+         
+    setProvineCompanyId(event.target.value)
+  }
+
+  const handleChangeCompanyName = (event) => { 
+    setCompanyName(event.target.value)     
+ }
+ const handleChangeBusinessCode = (event) => {     
+   setBusinessCode(event.target.value)     
+ }
 
   const handleChangeBirthDate = (event) => {    
     const date = event.target.value.toString().split('-');
@@ -208,12 +262,15 @@ export default function Partner() {
     setDistrictId(event.target.value)
   }
   
-  const handleChangeType = (event) => {    
-      
-    setPartnerType(event.target.value)
-  }
   
-
+  const handleChangeType = (event) => {    
+    setPartnerType(event.target.value)
+    if(event.target.value === "Company") {
+      setShowCompany(true)
+    } else {
+      setShowCompany(false)
+    }
+  }
   
   
   const handleChangeGender = (event) => {        
@@ -228,21 +285,18 @@ export default function Partner() {
       response => {
         if(response.data && response.data.success === true) {
           const temp = response.data.data.partner
-          console.log(temp)
+          
           setPartnerId(temp.id)
           setName(temp.name)
           setGender(temp.gender)
-          setDateOfBirth(temp.dateOfBirth)
-          
+          setDateOfBirth(temp.dateOfBirth)          
+          setProvineId(temp.address.ward.province.id)
           setDateOfBirthText(convertStringToDate(temp.dateOfBirth))
-          setDistrictId(temp.address.ward.district.id)
-          setProvineId(temp.address.ward.province.id )
-          setPartnerType(temp.partnerType)
           getService.getAddressDistrictProvineId(temp.address.ward.province.id).then(
             response =>{
               if(response.status === 200 && response.data.data) {
-                setDistricts(response.data.data.districts);
-                setDistrictId(temp.address.ward.district.id)
+                setDistricts(response.data.data.districts);    
+                setDistrictId(temp.address.ward.district.id)            
                 getService.getAddressWardDistrictId(temp.address.ward.district.id).then(
                   response =>{
                     if(response.status === 200 && response.data.data) {                      
@@ -257,16 +311,39 @@ export default function Partner() {
               } 
             }
           )
+          setPartnerType(temp.partnerType) 
+          if(temp.partnerType === "Company") {
+            setShowCompany(true)
+            setCompanyName(temp.company.name);
+            setBusinessCode(temp.company.businessCode);
+            setProvineCompanyId(temp.company.address.ward.province.id)
+            getService.getAddressDistrictProvineId(temp.company.address.ward.province.id).then(
+              response =>{
+                if(response.status === 200 && response.data.data) {
+                  setDistrictsCompany(response.data.data.districts);
+                  setDistrictCompanyId(temp.company.address.ward.district.id)
+                  
+                  getService.getAddressWardDistrictId(temp.company.address.ward.district.id).then(
+                    response =>{
+                      if(response.status === 200 && response.data.data) {    
+                        setWardsCompany(response.data.data.wards);    
+                        setWardId(temp.company.address.ward.id)              
+                        setStreet(temp.company.address.street)                      
+                      }        
+                    }
+                  )
+                } 
+              }
+
+            )
+          }
           
         }
       }
     )
     setOpenPartner(true)
   };
-  const handleClickDelete = (id) => {
-    alert(`delete ${id}`)
-  };
-
+  
   const handleClose = () => {
     setOpen(false)    
   }
@@ -278,6 +355,13 @@ export default function Partner() {
 
   const handleClickCancel = () => {
     setOpen(false);
+    setShowCompany(false);
+    setBusinessCode("");
+    setCompanyName("");
+    setDistrictCompanyId("");
+    setProvineCompanyId("");
+    setWardId("");
+    setStreet("");
     setAddressStore({
       district:"",
       province:"",
@@ -309,18 +393,47 @@ export default function Partner() {
     setSelected([]);
   };
   const handleClickSave = () =>{
-    partnerService.PutPartnerById(partnerId,name,gender,dateOfBirth,address,partnerType).then(
-      response => {
-        if(response.data && response.data.success === true) {
-          alert("Update Success");
-          setOpenPartner(false);
-          clearScreen();
-          setSuccess(!success)
+    if(partnerId && name && gender && dateOfBirthText && address.street && address.wardId && partnerType) {
+      if (partnerType === "Company") {
+        const company = {
+          name: companyName,
+          businessCode,
+          address: {
+            wardId,
+            street
+          }
         }
-      }, error => {
-        alert("Có lỗi")
+        partnerService.PutPartnerById(partnerId,name,gender,dateOfBirth,address,partnerType, company).then(
+          response => {
+            if(response.data && response.data.success === true) {
+              alert("Update Success");
+              setOpenPartner(false);
+              clearScreen();
+              setSuccess(!success)
+            }
+          }, error => {
+            alert("Có lỗi")
+            setSuccess(!success)
+          }
+        )
+      } else {
+        partnerService.PutPartnerById(partnerId,name,gender,dateOfBirth,address,partnerType).then(
+          response => {
+            if(response.data && response.data.success === true) {
+              alert("Update Success");
+              setOpenPartner(false);
+              clearScreen();
+              setSuccess(!success)
+            }
+          }, error => {
+            alert("Có lỗi")
+            setSuccess(!success)
+          }
+        )
       }
-    )
+    } else {
+      alert("Vui lòng nhập đầy đủ thông tin")
+    }    
   }
 
   const clearScreen = () => {
@@ -363,7 +476,7 @@ export default function Partner() {
         }
         
       }, error => {
-        console.log(error)
+        setSuccess(!success)
       }
     )
    
@@ -394,10 +507,8 @@ export default function Partner() {
                 setSuccess(!success)
               }
             }
-          )
-          
-        }
-        
+          )          
+        }        
       }
     )
     getService.getValuesGender().then(
@@ -425,7 +536,8 @@ export default function Partner() {
     getService.getAddressProvines().then(
       response =>{
         if(response.data && response.status === 200){
-          setProvines(response.data.data.provines);          
+          setProvines(response.data.data.provines);     
+          setProvinesCompany(response.data.data.provines);       
         }
       }
     )
@@ -754,7 +866,7 @@ export default function Partner() {
     </Grid>
     <Grid item xs={4}>
     <Label>Partner Type</Label>
-    <TextField
+        <TextField
                   fullWidth
                   select
                   value={partnerType}
@@ -767,8 +879,96 @@ export default function Partner() {
             </MenuItem>
           )
           )}
-                  </TextField>
+          </TextField>
     </Grid>
+    {showCompany === true && 
+    <>
+    <Grid item xs={6}>
+      <Label>Company Name</Label>
+        <TextField 
+        fullWidth
+        name="companyname" 
+        
+        value={companyName} 
+        type="text"
+        required
+        onChange={(event) => { handleChangeCompanyName(event) }}
+        />
+      </Grid>
+ 
+      <Grid item xs={6}>
+      <Label>BusinessCode</Label>
+        <TextField 
+        name="BusinessCode" 
+        fullWidth
+        value={businessCode} 
+        required
+        onChange={(event) => { handleChangeBusinessCode(event) }}
+        />      
+      </Grid>
+      <Grid item xs={6}>
+      <Label>Provine</Label>
+      <TextField
+                  fullWidth
+                  select
+                  value={provineCompanyId}
+                  id="country"       
+                  onChange= {handleChangeProvineCompanyId}
+                >
+                  {provinesCompany  && provinesCompany.map((option) => (
+             <MenuItem key={option.id} value={option.id}>
+              {option.name}
+            </MenuItem>
+          )
+          )}
+          </TextField>      
+    </Grid>
+    <Grid item xs={6}>
+    <Label>District</Label>
+      <TextField
+                  fullWidth
+                  select
+                  value={districtCompanyId}
+                  id="country"         
+                  onChange= {handleChangeDistrictCompanyId}
+                >
+                  {districtsCompany  && districtsCompany.map((option) => (
+             <MenuItem key={option.id} value={option.id}>
+              {option.name}
+            </MenuItem>
+          )
+          )}
+            </TextField>  
+    </Grid>
+    <Grid item xs={4}>
+    <Label>Ward</Label>
+      <TextField
+                  fullWidth
+                  select
+                  value={wardId}
+                  id="country"       
+                  onChange= {handleChangeCompanyWardId}
+                >
+                  {wardsCompany  && wardsCompany.map((option) => (
+             <MenuItem key={option.id} value={option.id}>
+              {option.name}
+            </MenuItem>
+          )
+          )}
+            </TextField>
+    </Grid>
+    <Grid item xs={8}>
+    <Label>Street</Label>
+        <TextField 
+        fullWidth
+        name="street" 
+        value={street} 
+        required
+        onChange={(event) => { handleChangeCompanyStreet(event) }}
+        />
+    </Grid>
+    </>
+    }
     
         </Grid> 
         </DialogContent>

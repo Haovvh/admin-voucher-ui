@@ -146,6 +146,8 @@ export default function ProductItem() {
               setSuccess(!success)
               setIsEnable("")
             }
+          } , error => {
+            setSuccess(!success)
           }
         )        
       } 
@@ -159,6 +161,8 @@ export default function ProductItem() {
               setIsEnable("")
             }
             
+          }, error => {
+            setSuccess(!success)
           }
         )        
       }
@@ -208,7 +212,7 @@ export default function ProductItem() {
         }
         
       }, error => {
-        console.log(error)
+        setSuccess(!success)
       }
     )
   };
@@ -223,6 +227,7 @@ export default function ProductItem() {
           
         }, error => {
           alert("Dữ liệu đã tồn tại.")
+          setSuccess(!success)
         }
       )
     }
@@ -279,7 +284,7 @@ export default function ProductItem() {
           }          
         }, error => {
           alert("Vui lòng kiểm tra dữ liệu")
-          console.log("Error Submit",error)
+          setSuccess(!success)
         }
       )
     } else {
@@ -294,7 +299,7 @@ export default function ProductItem() {
           
         }, error => {
           alert("Vui lòng kiểm tra dữ liệu")
-          console.log("Error Submit",error)
+          setSuccess(!success)
         }
       )
     }

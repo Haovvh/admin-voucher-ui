@@ -266,12 +266,12 @@ export default function Store() {
             }
           )
         }
+      }, error => {
+        setSuccess(!success)
       }
     )    
   };
-  const handleClickDelete = (id) => {
-    alert(`delete ${id}`)
-  };
+  
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -362,6 +362,8 @@ export default function Store() {
               setOpenEnable(false)
               setSuccess(!success)
             }
+          } ,error => {
+            setSuccess(!success)
           }
         )
         
@@ -375,6 +377,8 @@ export default function Store() {
               setSuccess(!success)
             }
             
+          }, error => {
+            setSuccess(!success)
           }
         )        
       }

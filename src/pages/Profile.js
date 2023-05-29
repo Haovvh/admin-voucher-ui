@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 
 // @mui
 import {   Stack, TextField, Link, Paper,styled, Grid  } from '@mui/material';
-
+import Box from '@mui/material/Box';
 
 import {Form, Button, Modal, Container} from 'react-bootstrap'
 import MenuItem from '@mui/material/MenuItem';
@@ -21,7 +21,7 @@ import getService from '../services/getEnum.service'
 import Label from '../components/label';
 import { checkPassword } from '../utils/check';
 import { convertStringToDate } from '../utils/formatTime';
-
+import headerService from '../services/header.service';
 // ----------------------------------------------------------------------
 
 
@@ -250,6 +250,21 @@ export default function Profile() {
             }
           )
         }
+      }, error =>{
+        if(error.response && error.response.status === 401) {
+          const token = headerService.refreshToken();
+          adminService.refreshToken(token).then(
+            response=>{
+              if(response.data && response.data.success === true) {
+                console.log(response.data)
+                localStorage.setItem("token", JSON.stringify(response.data.data));
+                setSuccess(!success)
+              }
+            }
+          )
+          
+        }
+        
       }
     )
     
@@ -261,9 +276,10 @@ export default function Profile() {
     <Helmet>
         <title> Profile  </title>
       </Helmet>
-    <Container xs={6}>
-    <Grid xs={12} container spacing={2}>
-      
+      <Box 
+        
+        sx={{ width: '50%' }}>
+    <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>      
  
       <Grid item xs={7}>
       <Label>FullName</Label>
@@ -395,7 +411,7 @@ export default function Profile() {
     </Grid> 
     
   </Grid>  
-    </Container>
+    </Box>
         
 
   <Dialog open={open} onClose={handleClose}>

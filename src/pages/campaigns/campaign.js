@@ -1,7 +1,9 @@
 import { Helmet } from 'react-helmet-async';
-import { filter } from 'lodash';
+import { camelCase, filter, set } from 'lodash';
 import { sentenceCase } from 'change-case';
 import { useEffect, useState } from 'react';
+
+import DialogTitle from '@mui/material/DialogTitle';
 // @mui
 import {
   Card,
@@ -26,39 +28,40 @@ import {
   Modal 
 } from '@mui/material';
 
+
 import Grid from '@mui/material/Unstable_Grid2';
 
 
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
 import DialogContentText from '@mui/material/DialogContentText';
-// components
-import Label from '../../components/label';
+
 import Iconify from '../../components/iconify';
 import Scrollbar from '../../components/scrollbar';
+import Label from '../../components/label';
 
+import CampaignService from '../../services/campaign.service';
 
-
-import getService from '../../services/getEnum.service'
-import headerService from '../../services/header.service';
-import adminService from '../../services/admin.service';
-   
-import productcategoryService from '../../services/productcategory.service';
 
 // sections
 import { UserListHead, UserListToolbar } from '../../sections/@dashboard/user';
 // mock
 
-
+import headerService from '../../services/header.service';
+import partnerService from '../../services/partner.service';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
   { id: 'description', label: 'Description', alignRight: false },  
-  { id: 'isEnable', label: 'Enable', alignRight: false },
+  { id: 'gameId', label: 'Game', alignRight: false },  
+  { id: 'isEnable', label: 'Enable', alignRight: false }, 
+  { id: 'status', label: 'Status', alignRight: false },  
+  { id: 'startDate', label: 'StartDate', alignRight: false },  
+  { id: 'endDate', label: 'EndDate', alignRight: false },  
+  
   { id: '' },
 ];
 
@@ -96,16 +99,17 @@ function applySortFilter(array, comparator, query) {
 
 const statusEnable = ["Enable             ", "Disable          "]
 
-export default function ProductCategory() {  
+export default function Campaign() {  
+
+  const [edit, setEdit] = useState(false);
   
   const [success, setSuccess] = useState(false);
-  const [open, setOpen] = useState(false);
+
+  const [isDetail, setIsDetail] = useState(false);
+
   const [page, setPage] = useState(0);
 
-  const [order, setOrder] = useState('asc');
-  const [name, setName] = useState("");
-
-  const [description, setDescription] = useState("");
+  const [order, setOrder] = useState('asc'); 
 
   const [selected, setSelected] = useState([]);
 
@@ -113,54 +117,26 @@ export default function ProductCategory() {
 
   const [filterName, setFilterName] = useState('');
 
-  const [productCategorys, setProductCategorys] = useState([])
+  const [campaigns, setCampaigns] = useState([])
 
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-
-  const [productCategoryId, setProductCategoryId] = useState("");
+  const [rowsPerPage, setRowsPerPage] = useState(5);  
 
   const [openEnable, setOpenEnable] = useState(false);
 
   const [isEnable, setIsEnable] = useState("");
 
-  const handleChangeName = (event) => {
-    setName(event.target.value) 
-  }
+  const [campaignId, setCampaignId] = useState("");
 
-  const handlechangeDescription = (event) => {
-    setDescription(event.target.value) 
-  }
-  const handleChangeStatusEnable = (event) =>{
-    setIsEnable(event.target.value)
-  }
-  
-  const handleClose = () => {
-    setOpen(false)   
-    setOpenEnable(false)
-
-    clearScreen(); 
-  }
-  const handleClickEdit = (id, name) => {
-    productcategoryService.GetProductCategoryById(id).then(
-      response => { 
-        if (response.data && response.data.success) {
-          const temp = response.data.data.productCategories
-          setProductCategoryId(temp.id);
-          setName(temp.name);
-          setDescription(temp.description)
-          setOpen(true)
-          
-        }
-        
-      }, error => {
-        setSuccess(!success)
-      }
-    )
+   
+  const handleClickEdit = (id) => {
+    
+    setCampaignId(id);
+    setEdit(true)
     
   };
   const handleClickDelete = (id) => {
-    if(window.confirm("Are you want delete")) {
-      productcategoryService.DeleteProductCategoryById(id).then(
+    if(window.confirm(`Are you want delete `)) {
+      CampaignService.DeleteCampaignById(id).then(
         response => { 
           if (response.data && response.data.success) {
             alert("Delete Success")
@@ -168,7 +144,7 @@ export default function ProductCategory() {
           }
           
         }, error => {
-          alert("Dữ liệu đã tồn tại")
+          alert("Có lỗi")
           setSuccess(!success)
         }
       )
@@ -176,16 +152,74 @@ export default function ProductCategory() {
     
   };
 
+  const handleClickEditEnable = (id) =>{    
+    setCampaignId(id);
+    setOpenEnable(true)
+    
+  }
+  
+  const handleChangeStatusEnable = (event) =>{
+    setIsEnable(event.target.value)
+  }
+
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
 
+  const handleClickSubmitEnable = () => {
+    if(isEnable) {
+      if(isEnable === statusEnable[0]) {
+        CampaignService.CampaignEnableByCampaignId(campaignId).then(
+          response => {
+            if(response.data  && response.data.success) {
+              alert("Enable Campaign success");
+              setOpenEnable(false)
+              setSuccess(!success)
+            }
+          } , error => {
+            alert("Có lỗi")
+            setSuccess(!success)
+          }
+        )
+        
+      } 
+      else if(isEnable === statusEnable[1]) {
+        CampaignService.CampaignDisableByCampaignId(campaignId).then(
+          response => {
+            if(response.data  && response.data.success) {
+              alert("Disable Campaign success");
+              setOpenEnable(false)
+              setSuccess(!success)
+            }
+            
+          }, error => {
+            alert("Có lỗi")
+            setSuccess(!success)
+          }
+        )        
+      }
+    } else {
+      alert("Please choose Status");
+    }
+  }
+
+  const handleClose = () => {  
+    setOpenEnable(false)
+
+    setIsEnable("")
+  }
+
   
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
+
+  const handleClickCancel = () => {    
+    setOpenEnable(false)
+    setIsEnable("")
+  }
 
   const handleChangeRowsPerPage = (event) => {
     setPage(0);
@@ -199,128 +233,35 @@ export default function ProductCategory() {
   };
 
   const handleClickNew = () => {
-    setOpen(true);
-    
+     setIsDetail(true);
   }
-  const handleClickSubmitEnable = () => {
-    if(isEnable) {
-      if(isEnable === statusEnable[0]) {
-        productcategoryService.EnablePutProductCategoryById(productCategoryId).then(
-          response => {
-            if(response.data  && response.data.success) {
-              alert("Enable ProductCategory success");
-              setOpenEnable(false)
-              setSuccess(!success)
-            }
-          }, error => {
-            setSuccess(!success)
-          }
-        )
-        
-      } 
-      else if(isEnable === statusEnable[1]) {
-        productcategoryService.DisablePutProductCategoryById(productCategoryId).then(
-          response => {
-            if(response.data  && response.data.success) {
-              alert("Disable ProductCategory success");
-              setOpenEnable(false)
-              setSuccess(!success)
-            }
-            
-          }, error => {
-            setSuccess(!success)
-          }
-        )        
-      }
-    } else {
-      alert("Please choose Status");
-    }
-  }
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - campaigns.length) : 0;
 
-  const handleClickEditEnable = (id) =>{    
-    setProductCategoryId(id);
-    setOpenEnable(true)
-    
-  }
-  
-  
-  const clearScreen = () =>{
-    setProductCategoryId("");
-    setName("");
-    setDescription("");
-    setIsEnable("")
-  }
-  const handleClickCancel = () => {  
-    setOpen(false);  
-    setOpenEnable(false)
-    
-    clearScreen()
-  }
-
-  const handleClickSubmit = () => {
-    if (name && description) {
-      if(productCategoryId === "") {
-        productcategoryService.PostProductCategory(name, description).then(
-          response => { 
-            if(response.data && response.data.success) {
-              setSuccess(true)
-              setOpen(false);  
-              clearScreen();
-    
-            }
-            
-          }, error => {
-            alert("Dữ liệu không hợp lệ")
-            setSuccess(!success)
-          }
-        )
-      } else {
-        productcategoryService.PutProductCategoryById(name, description, productCategoryId).then(
-          response => { 
-            if(response.data && response.data.success) {
-              setSuccess(true)
-              setOpen(false);  
-              clearScreen();  
-            }
-            
-          }, error => {
-            alert("Dữ liệu không hợp lệ")
-            setSuccess(!success)
-          }
-        )
-      }  
-    } else {
-      alert("Vui lòng nhập đầy đủ thông tin")
-    }
-      
-      
-  }
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - productCategorys.length) : 0;
-
-  const filteredDatas = applySortFilter(productCategorys, getComparator(order, orderBy), filterName);
+  const filteredDatas = applySortFilter(campaigns, getComparator(order, orderBy), filterName);
 
   const isNotFound = !filteredDatas.length && !!filterName;
   useEffect(() =>{
-    productcategoryService.ProductCategoryAll().then(
+    CampaignService.CampaignAll().then(
       response =>{
-        if(response.data  && response.data.success) {
+        if(response.data  && response.data.success) {  
+          const temp =  response.data.data;    
           
-          setProductCategorys(response.data.data.productCategories)
-          setSuccess(false)
+          setCampaigns(response.data.data.listCampaign)          
         }
-      }, error =>{
+      }, error => {
         if(error.response && error.response.status === 401) {
           const token = headerService.refreshToken();
-          adminService.refreshToken(token).then(
-            response=>{
-              if(response.data && response.data.success === true) {
-                console.log(response.data)
+          partnerService.refreshToken(token).then(
+            response => {
+              console.log(response.data && response.data.success === true)
+              if(response.data && response.data.success === true) {                
                 localStorage.setItem("token", JSON.stringify(response.data.data));
                 setSuccess(!success)
               }
+            }, error => {
+              console.log(error)
             }
           )
-          
         }
         
       }
@@ -331,16 +272,15 @@ export default function ProductCategory() {
   return (
     <>
       <Helmet>
-        <title> ProductCategory  </title>
+        <title> Campaigns  </title>
       </Helmet>
-
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-          ProductCategory
+          Campaigns
           </Typography>
           <Button onClick={handleClickNew} variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-            New ProductCategory
+            New Campaign
           </Button>
         </Stack>
 
@@ -354,14 +294,14 @@ export default function ProductCategory() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={productCategorys.length}
+                  rowCount={campaigns.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   
                 />
                 <TableBody>
                   {filteredDatas.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, name, description, isEnable } = row;
+                    const { id, name, description, startDate, endDate, gameId, gameName, status, storeId, storeName, isEnable } = row;
                     const selectedUser = selected.indexOf(name) !== -1;
 
                     return (
@@ -370,16 +310,24 @@ export default function ProductCategory() {
 
                         <TableCell align="left">{name}</TableCell>
 
-                        <TableCell align="left">{description}</TableCell>
+                        <TableCell align="left">{description}</TableCell>    
+
+                        <TableCell align="left">{gameName}</TableCell>   
 
                         <TableCell align="left">
                         {(isEnable === true ) ? 
                           (<Button className='btn btn-primary' onClick={() => handleClickEditEnable(id)}>Enable</Button>):                           
                           (<Button className='btn btn-warning' onClick={() => handleClickEditEnable(id)}>Disable</Button>)}
-                        </TableCell>                         
+                        </TableCell>
+
+                        <TableCell align="left">{status}</TableCell>        
+
+                        <TableCell align="left">{startDate.day}-{startDate.month}-{startDate.year}</TableCell>    
+
+                        <TableCell align="left">{endDate.day}-{endDate.month}-{endDate.year}</TableCell>       
 
                         <TableCell align="right">                        
-                          <IconButton size="large" color="inherit" onClick={()=>handleClickEdit(id, name)}>
+                          <IconButton size="large" color="inherit" onClick={()=>handleClickEdit(id)}>
                           <Iconify icon={'eva:edit-fill'}  sx={{ mr: 2 }} />                          
                           </IconButton>
                           <IconButton size="large" color="inherit" onClick={()=>handleClickDelete(id)}>
@@ -426,7 +374,7 @@ export default function ProductCategory() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={productCategorys.length}
+            count={campaigns.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
@@ -434,40 +382,7 @@ export default function ProductCategory() {
           />
         </Card>
 
-      </Container>
-
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>New ProductCategory</DialogTitle>
-        <DialogContent>
-        <br/>
-        <Grid container spacing={2}>
-          <Grid xs={12}>
-          <Label>Name</Label>
-          <TextField 
-            name="name" 
-            fullWidth
-            value={name} 
-            required
-            onChange={(event) => { handleChangeName(event) }}
-            />
-          </Grid>
-          <Grid xs={12}>
-          <Label>Description</Label>
-          <TextField 
-            name="description" 
-            value={description} 
-            fullWidth
-            required
-            onChange={(event) => { handlechangeDescription(event) }}
-            />
-          </Grid>
-        </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClickCancel}>Cancel</Button>
-          <Button onClick={handleClickSubmit}>Submit</Button>
-        </DialogActions>
-      </Dialog>
+      </Container>  
       <Dialog open={openEnable} onClose={handleClose}>
         <DialogTitle>Edit Enable</DialogTitle>
         <DialogContent> 
@@ -476,8 +391,8 @@ export default function ProductCategory() {
           </DialogContentText>
           <Grid container spacing={2}>
           <Grid item xs={12}>
-          <Label>Status</Label>
           <TextField
+                  label="Status"
                   fullWidth
                   select
                   variant="outlined"
@@ -500,7 +415,6 @@ export default function ProductCategory() {
           <Button onClick={handleClickSubmitEnable}>Submit</Button>
         </DialogActions>
       </Dialog>
-      
-    </>
+      </>
   );
 }

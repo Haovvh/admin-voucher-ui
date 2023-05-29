@@ -169,6 +169,7 @@ export default function User() {
           }
         }, error => {
           alert("Có lỗi")
+          setSuccess(!success)
         }
       )
     } else {
@@ -176,10 +177,7 @@ export default function User() {
     }
     
   }
-  const handleClickDelete = (id) => {
-    alert(`delete ${id}`)
-  };
-
+  
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -289,6 +287,8 @@ export default function User() {
           )
           
         }
+      }, error => {
+        setSuccess(!success)
       }
     )
     setOpenPartner(true)

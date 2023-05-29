@@ -211,7 +211,7 @@ export default function Game() {
           setOpen(true)
         }
       }, error => {
-        console.log(error)
+        setSuccess(!success)
       }
     )
   };
@@ -226,6 +226,7 @@ export default function Game() {
           
         }, error => {
           alert("Dữ liệu đã tồn tại không thể xóa")
+          setSuccess(!success)
         }
       )
     }
@@ -292,7 +293,7 @@ export default function Game() {
           }, error =>{
             alert("Dữ liệu không phù hợp")
     
-            console.log("Error submit games",error)
+            setSuccess(!success)
           }
         )
       } else {
@@ -305,9 +306,8 @@ export default function Game() {
               setSuccess(!success)
             }
           }, error =>{
-            alert("Dữ liệu không phù hợp")
-    
-            console.log("Error submit games",error)
+            alert("Dữ liệu không phù hợp")    
+            setSuccess(!success)
           }
         )
       }
