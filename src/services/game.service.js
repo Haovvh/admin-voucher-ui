@@ -39,14 +39,14 @@ const PutEnableGameById = (gameId) => (
 })
 );
 
-const PutGameById = (name, description, instruction, gameId, isEnable = true,  imageUrl="/DummyImages/Games/lucky-wheel.jpg") => (
+const PutGameById = (name, description, instruction, gameId, imageUrl, isEnable = true) => (
   axios.put(`${process.env.REACT_APP_API_URL}/Game/${gameId}`,{
     name, description, instruction, isEnable, imageUrl
   }, { 
     headers: headerService.accessToken()
 })
 );
-const PostGame = (name, description, instruction, imageUrl="/DummyImages/Games/lucky-wheel.jpg", isEnable = true) => (
+const PostGame = (name, description, instruction, imageUrl, isEnable = true) => (
   axios.post(`${process.env.REACT_APP_API_URL}/Game/Create`,{
     name, description, instruction, isEnable, imageUrl
   }, { 

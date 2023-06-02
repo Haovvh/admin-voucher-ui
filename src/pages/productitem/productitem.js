@@ -52,10 +52,10 @@ import { UserListHead, UserListToolbar } from '../../sections/@dashboard/user';
 const TABLE_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
   { id: 'description', label: 'Description', alignRight: false },  
-  { id: 'price', label: 'Price', alignRight: false },
-  { id: 'imageUrl', label: 'Image', alignRight: false },  
+  { id: 'price', label: 'Price', alignRight: false }, 
   { id: 'productCategory', label: 'ProductCategory', alignRight: false },  
   { id: 'isEnable', label: 'Enable', alignRight: false },
+  { id: '' },
 ];
 
 
@@ -119,6 +119,8 @@ export default function ProductItem() {
 
   const [productCategories, setProductCategories] = useState("");
 
+  const [urlImage, setUrlImage] = useState("");
+
   const [productItemId, setProductItemId]  = useState("");
   
   const [imageUrl, setImageUrl] = useState("/Image/ProductItem");
@@ -173,65 +175,29 @@ export default function ProductItem() {
 
   
 
-  const handleChangeName = (event) => {
-    setName(event.target.value) 
-  }
-
-  const handleChangePrice = (event) => {
-    setPrice(event.target.value) 
-  }
-
-  const handleChangeProductCategory = (event) => {
-    setProductCategoryId(event.target.value)
-  }
-  const handleChangeImageURL = (event) => {
-    setImageUrl(event.target.value)
-  }
-
-  const handlechangeDescription = (event) => {
-    setDescription(event.target.value) 
-  }
- 
+  
   const handleClose = () => {
     setOpen(false)    
   }
   const handleClickEdit = (id) => {
-    
     productItemService.GetProductItemById(id).then(
       response => {
         if (response.data && response.data.success) {
           const temp = response.data.data.productItem
           setOpen(true)  
-          console.log(temp)
           setProductItemId(temp.id)
           setName(temp.name);
           setDescription(temp.description);
           setPrice(temp.price)
-          setProductCategoryId(temp.productCategory.id)
-          setImageUrl(temp.imageUrl)
+          setProductCategoryId(temp.productCategory.name)
+          setUrlImage(`${process.env.REACT_APP_API_URL}${temp.imageUrl}`)
         }
         
       }, error => {
         setSuccess(!success)
       }
     )
-  };
-  const handleClickDelete = (id) => {
-    if(window.confirm("Are you want delete")) {
-      productItemService.DeleteProductItemById(id).then(
-        response => { 
-          if (response.data && response.data.success) {
-            alert("Delete Success")
-            setSuccess(!success);
-          }
-          
-        }, error => {
-          alert("Dữ liệu đã tồn tại.")
-          setSuccess(!success)
-        }
-      )
-    }
-  };
+  };  
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -255,10 +221,7 @@ export default function ProductItem() {
     setSelected([]);
   };
 
-  const handleClickNew = () => {
-    setOpen(true);
-    
-  }
+  
   const handleClickCancel = () => {
     setOpen(false);
     clearInput();
@@ -267,45 +230,12 @@ export default function ProductItem() {
   const clearInput = () => {
     setName("");
     setDescription("");
-    setPrice(0);
-    setProductCategoryId(0)
-    setImageUrl("/Image/ProductItem")
+    setPrice("");
+    setImageUrl("")
     setProductCategoryId("");
     setProductItemId("");
   }
-  const handleClickSubmit = () => {
-    if(productItemId === "") {
-      productItemService.PostProductItem(name, description,productCategoryId, price).then(
-        response => {
-          if(response.data && response.data.success) {
-            setSuccess(true);          
-            clearInput();
-            setOpen(false);    
-          }          
-        }, error => {
-          alert("Vui lòng kiểm tra dữ liệu")
-          setSuccess(!success)
-        }
-      )
-    } else {
-      productItemService.PutProductItemById(name, description, productCategoryId, price, imageUrl,  productItemId).then(
-        response => {
-          if(response.data && response.data.success) {
-            alert("Update Success")
-            setSuccess(true);          
-            clearInput();
-            setOpen(false);    
-          }
-          
-        }, error => {
-          alert("Vui lòng kiểm tra dữ liệu")
-          setSuccess(!success)
-        }
-      )
-    }
-    
-    
-  }
+  
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - productItems.length) : 0;
 
   const filteredDatas = applySortFilter(productItems, getComparator(order, orderBy), filterName);
@@ -350,10 +280,7 @@ export default function ProductItem() {
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
           ProductItem
-          </Typography>
-          <Button onClick={handleClickNew} variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-            New ProductItem
-          </Button>
+          </Typography>          
           
         </Stack>
 
@@ -387,7 +314,7 @@ export default function ProductItem() {
 
                         <TableCell align="left">{price}</TableCell>
 
-                        <TableCell align="left">{imageUrl}</TableCell>
+                       
 
                         <TableCell align="left">{productCategory.name}</TableCell>
 
@@ -397,6 +324,11 @@ export default function ProductItem() {
                           (<Button className='btn btn-warning' onClick={() => handleClickEnable(id)}>Disable</Button>)}
                         </TableCell>                        
 
+                        <TableCell align="right">                        
+                          <IconButton size="large" color="inherit" onClick={()=>handleClickEdit(id)}>
+                          <Iconify icon={'ep:view'}  sx={{ mr: 2 }} />                          
+                          </IconButton>                          
+                        </TableCell>     
                         
                       </TableRow>
                     );
@@ -448,7 +380,7 @@ export default function ProductItem() {
 
       </Container>
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>New ProductItem</DialogTitle>
+        <DialogTitle> ProductItem</DialogTitle>
         <DialogContent>
         <Grid container spacing={2}>
           <Grid xs={12}>
@@ -457,8 +389,8 @@ export default function ProductItem() {
             name="name" 
             fullWidth
             value={name} 
-            required
-            onChange={(event) => { handleChangeName(event) }}
+            disabled
+            
             />
           </Grid>
           <Grid xs={12}>
@@ -467,8 +399,7 @@ export default function ProductItem() {
             name="description" 
             value={description} 
             fullWidth
-            required
-            onChange={(event) => { handlechangeDescription(event) }}
+            disabled
             />             
           </Grid>
           <Grid xs={12}>
@@ -478,44 +409,29 @@ export default function ProductItem() {
               type="number"
               value={price} 
               fullWidth
-              required
-              onChange={(event) => { handleChangePrice(event) }}
+              disabled
               />
           </Grid>
           <Grid xs={12}>
           <Label>ProductCategory</Label>
-          <TextField
-                  fullWidth
-                  select
-                  variant="outlined"
-                  value={productCategoryId}
-                  id="country"      
-                  onChange= {handleChangeProductCategory}
-                >
-                  {productCategories  && productCategories.map((option) => (
-             <MenuItem key={option.id} value={option.id}>
-              {option.name}
-            </MenuItem>
-          )
-          )}
-            </TextField>
+          <TextField 
+            name="ProductCategory" 
+            value={productCategoryId} 
+            fullWidth
+            disabled
+            />             
           </Grid>
+          
           <Grid xs={12}>
-          <Label>Image</Label>
-            <TextField 
-              name="Image" 
-              value={imageUrl} 
-              fullWidth
-              required
-              onChange={(event) => { handleChangeImageURL(event) }}
-              />
+          <Label>Image</Label>          
+          {(urlImage !== "") && <img src={urlImage} alt="Trulli" width="550" height="333"/>}
           </Grid>
         </Grid>
         
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClickCancel}>Cancel</Button>
-          <Button onClick={handleClickSubmit}>Submit</Button>
+          
         </DialogActions>
       </Dialog>
       <Dialog open={openEnable} onClose={handleClose}>

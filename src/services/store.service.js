@@ -63,6 +63,14 @@ const StoreDisableStoreId = (storeId) => (
     headers: headerService.accessToken()
 })
 );
+const PutStoreByAdmin = (storeId, name, description, address, openTime, closeTime,  bannerUrl, isEnable = true) => (
+    
+  axios.put(`${process.env.REACT_APP_API_URL}/Admin/Store/${storeId}`,{
+      name, description, address, openTime, closeTime, isEnable, bannerUrl
+ }, { 
+  headers: headerService.accessToken() 
+  })
+);
 
 
 
@@ -77,5 +85,6 @@ export default  {
   StoreRejecteStoreId,
   StoreRejected,
   StoreEnableStoreId,
-  StoreDisableStoreId
+  StoreDisableStoreId,
+  PutStoreByAdmin
 }

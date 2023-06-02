@@ -38,7 +38,7 @@ export default function Router() {
         { path: 'productitem', element: (isUser)? <ProductItem /> :<PageRole/>},
         { path: 'profile', element: (isUser)? <Profile /> :<PageRole/>},
         { path: 'user', element: (isUser)? <User /> :<PageRole/>},
-        { path: 'logout', element: (isUser)? <Logout /> :<PageRole/>},
+        { path: 'logout', element:  <Logout /> },
         
       ],
     },

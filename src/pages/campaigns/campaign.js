@@ -279,9 +279,7 @@ export default function Campaign() {
           <Typography variant="h4" gutterBottom>
           Campaigns
           </Typography>
-          <Button onClick={handleClickNew} variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-            New Campaign
-          </Button>
+          
         </Stack>
 
         <Card>

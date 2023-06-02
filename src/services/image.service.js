@@ -3,10 +3,10 @@ import headerService from "./header.service";
 
 
 const ImageUpload = (file) => (
-  axios.post(`${process.env.REACT_APP_API_URL}/Image/Upload`,{
+  axios.post(`${process.env.REACT_APP_API_URL}/Image/Upload`,
     file
-  }, { 
-    headers: headerService.accessToken() 
+  , { 
+    headers: headerService.accessTokenImage() 
 })
 );
 

@@ -44,6 +44,8 @@ import getService from '../../services/getEnum.service'
 import headerService from '../../services/header.service';
 import adminService from '../../services/admin.service';
 // ----------------------------------------------------------------------
+import imageService from '../../services/image.service';
+import noti from '../../utils/noti';
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
@@ -84,6 +86,16 @@ function applySortFilter(array, comparator, query) {
     if (order !== 0) return order;
     return a[1] - b[1];
   });
+  if ( query.toLowerCase() === "nee" || query.toLowerCase() === "needapproval") {
+    return filter(array, (_user) => _user.isApproved === null);
+  }
+  if (query.toLowerCase() === "app" || query.toLowerCase() === "approved") {
+    return filter(array, (_user) => _user.isApproved === true);
+  }
+  if (query.toLowerCase() === "rej" ||  query.toLowerCase() === "rejected") {
+    return filter(array, (_user) => _user.isApproved === true);
+  }
+    
     
   if (query) {
     return filter(array, (_user) => _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
@@ -121,6 +133,9 @@ export default function Store() {
 
   const [success, setSuccess] = useState(false)
 
+  const [bannerUrl, setBannerUrl] = useState("");
+  const [urlImage, setUrlImage] = useState("");
+
   const [openTime, setOpenTime] = useState({
     hour: 0,
     minute: 1
@@ -147,6 +162,24 @@ export default function Store() {
   const [districtId, setDistrictId] = useState("");
   const [wards, setWards] = useState([]);
   
+
+  const handleChangeImageURL = (event) => {
+    const file = event.target.files[0];
+    const formData = new FormData();
+    formData.append("file", file)
+    imageService.ImageUpload(formData).then(
+      response =>{
+        if (response.data && response.data.success === true) {
+          const temp = response.data.data.imagePath
+          setBannerUrl(temp)
+          setUrlImage(`${process.env.REACT_APP_API_URL}${temp}`)
+        }
+         
+      }, error => {
+        console.log(error)
+      }
+    )  
+  }
 
   const handleChangeName = (event) => {
     setName(event.target.value) 
@@ -227,7 +260,45 @@ export default function Store() {
     }))
   }
   const handleClickSubmitStore = () => {
-    alert("Test Submit")
+    if (name && description && openTimeText && closeTimeText && provineId && districtId && address.wardId && address.street) {
+      storeService.PutStoreByAdmin(storeId, name, description, address, openTime, closeTime, bannerUrl).then(
+        response => {
+          if(response.data && response.data.success === true) {
+
+            alert(noti.EDIT_SUCCESS)
+            setOpenStore(false);
+            setSuccess(!success)
+            
+            clearScreen();
+          }
+        }
+      )
+    } else {
+      alert(noti.MISSING_DATA)
+    }
+  }
+
+  const clearScreen = () => {
+    setName("");
+    setDescription("")
+    setOpenTime({
+      hour: 0,
+      minute:0
+    })
+    setCloseTime({
+      hour: 0,
+      minute: 0
+    })
+    setAddress({
+      wardId: "",
+      street: ""
+    });
+    setProvineId("")
+    setDistrictId("")
+    setOpenTimeText("");
+    setCloseTimeText("");
+    setIsEnable("");
+    setStoreId("");
   }
 
   const handleClickEdit = (id ) => {
@@ -236,9 +307,19 @@ export default function Store() {
         if(response.data && response.data.success === true) {
           const temp = response.data.data.store
           console.log(temp)
+          setBannerUrl(temp.bannerUrl)
+          setUrlImage(`${process.env.REACT_APP_API_URL}${temp.bannerUrl}`)
           setOpenStore(true)
           setStoreId(temp.id)
           setName(temp.name)
+          setOpenTime({
+            hour: temp.openTime.hour,
+            minute: temp.openTime.minute
+          })
+          setCloseTime({
+            hour: temp.closeTime.hour,
+            minute: temp.closeTime.minute
+          })
           const tempOpenTime = convertStringToTime(temp.openTime);
           const tempCloseTime = convertStringToTime(temp.closeTime)
           setOpenTimeText(tempOpenTime)
@@ -488,7 +569,7 @@ export default function Store() {
                          </TableCell>
                          <TableCell align="left">
                           {((isApproved === null ) ? 
-                          (<Button className='btn btn-primary' onClick={() => handleClickEditApprove(id)}>NeedApprovel</Button>):
+                          (<Button className='btn btn-primary' onClick={() => handleClickEditApprove(id)}>NeedApproval</Button>):
                           (isApproved === true)? <Button className='btn btn-success' onClick={() => handleClickEditApprove(id)}>Approved</Button> : 
                           <Button className='btn btn-warning' onClick={() => handleClickEditApprove(id)}>Rejected</Button>)}
                          </TableCell>
@@ -727,6 +808,16 @@ export default function Store() {
             onChange={(event) => { handleChangeCloseTime(event) }}
             />
           </Grid>
+          <Grid xs={12}>
+          <Label>Image</Label>
+          <form encType='multipart/form-data'>
+            <input type="file" onChange={(event) => { handleChangeImageURL(event) }}/>          
+            
+          </form>
+          <br/>
+          {(urlImage !== "") && <img src={urlImage} alt="Trulli" width="550" height="333"/>}
+          </Grid>
+
         </Grid> 
         </DialogContent>
         <DialogActions>

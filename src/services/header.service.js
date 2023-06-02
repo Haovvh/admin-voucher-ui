@@ -20,6 +20,19 @@ const refreshToken = () => {
   }
   return ""
 }
+const accessTokenImage = () => {
+  const user = JSON.parse(localStorage.getItem('token'));
+  
+  if (user &&  user.accessToken)  {
+    return {
+      Authorization: `Bearer ${user.accessToken}`,
+      "Content-Type": "multipart/form-data"     
+    } 
+  }
+  return {
+
+  }
+}
 
 const userName = () => {
   const user = JSON.parse(localStorage.getItem('user'))
@@ -36,7 +49,8 @@ const headerService = {
   accessToken,
   refreshToken,
   userName,
-  GetUser
+  GetUser,
+  accessTokenImage
 }
 
 export default headerService

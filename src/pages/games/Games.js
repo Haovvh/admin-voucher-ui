@@ -59,8 +59,7 @@ const statusEnable = ["Enable             ", "Disable          "]
 const TABLE_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
   { id: 'description', label: 'Description', alignRight: false },
-  { id: 'instruction', label: 'Instruction', alignRight: false },
-  { id: 'imageUrl', label: 'Image', alignRight: false },
+  { id: 'instruction', label: 'Instruction', alignRight: false },  
   { id: 'isEnable', label: 'Enable', alignRight: false },
   { id: '' },
 ];
@@ -122,6 +121,7 @@ export default function Game() {
   const [isEnable, setIsEnable] = useState("");
   const [gameId, setGameId] = useState("");
   const [imageUrl, setImageUrl] = useState("")
+  const [urlImage, setUrlImage] = useState("");
 
   const handleChangeName = (event) => {
     setName(event.target.value) 
@@ -162,29 +162,7 @@ export default function Game() {
   const handlechangeInstruction = (event) => {
     setInstruction(event.target.value) 
   }
-  const handlechangeImageUrl = (event) => {
-    const file = event.target.files[0];
-    const reader = new FileReader();
-
-    reader.onloadend = () => {
-      setImageUrl(reader.result);
-    };
-
-    reader.readAsBinaryString(file);    
-   
-    imageService.ImageUpload(imageUrl).then(
-      response => {
-        if(response.data && response.data.success === true) {
-          console.log(response.data)
-        }
-        
-      }, error => {
-        console.log(error)
-      }
-    )
-    setImageUrl(event.target.value) 
-  }
-
+  
   const handlechangeDescription = (event) => {
     setDescription(event.target.value) 
   }
@@ -209,6 +187,7 @@ export default function Game() {
           setInstruction(temp.instruction)
           setImageUrl(temp.imageUrl);
           setOpen(true)
+          setUrlImage(`${process.env.REACT_APP_API_URL}${temp.imageUrl}`)
         }
       }, error => {
         setSuccess(!success)
@@ -279,10 +258,28 @@ export default function Game() {
     setIsEnable("")
     
   }
+
+  const handleChangeImageURL = (event) => {
+    const file = event.target.files[0];
+    const formData = new FormData();
+    formData.append("file", file)
+    imageService.ImageUpload(formData).then(
+      response =>{
+        if (response.data && response.data.success === true) {
+          const temp = response.data.data.imagePath
+          setImageUrl(temp)
+          setUrlImage(`${process.env.REACT_APP_API_URL}${temp}`)
+        }
+         
+      }, error => {
+        console.log(error)
+      }
+    ) 
+  }
   const handleClickSubmit = () => {
     if (name && description && instruction) {
       if (gameId === "") {
-        gameService.PostGame(name, description,instruction).then(
+        gameService.PostGame(name, description,instruction, imageUrl).then(
           response =>{
             if(response.data && response.data.success && response.data.data) {
               alert("Success");
@@ -297,7 +294,7 @@ export default function Game() {
           }
         )
       } else {
-        gameService.PutGameById(name, description, instruction, gameId ).then(
+        gameService.PutGameById(name, description, instruction, gameId , imageUrl).then(
           response =>{
             if(response.data && response.data.success && response.data.data) {
               alert("Update Success");
@@ -397,9 +394,7 @@ export default function Game() {
 
                         <TableCell align="left">{description}</TableCell>
 
-                        <TableCell align="left">{instruction}</TableCell>
-
-                        <TableCell align="left">{imageUrl}</TableCell>
+                        <TableCell align="left">{instruction}</TableCell>                        
 
                         <TableCell align="left">
                         {(isEnable === true ) ? 
@@ -503,18 +498,14 @@ export default function Game() {
         />  
         </Grid>
         <Grid xs={12}>
-        <Label>Image</Label>
-        <TextField 
-        name="imageUrl" 
-        type="file"
-        
-        fullWidth
-        required
-        onChange={(event) => { handlechangeImageUrl(event) }}
-        />  
-        {imageUrl && 
-        <img src={imageUrl} alt="==="/>}
-        </Grid>
+          <Label>Image</Label>
+          <form encType='multipart/form-data'>
+            <input type="file" onChange={(event) => { handleChangeImageURL(event) }}/>          
+            
+          </form>
+          <br/>
+          {(urlImage !== "") && <img src={urlImage} alt="Trulli" width="550" height="333"/>}
+          </Grid>
         </Grid>
         
         </DialogContent>
