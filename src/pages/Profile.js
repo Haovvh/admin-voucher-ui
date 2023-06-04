@@ -23,7 +23,7 @@ import { checkPassword } from '../utils/check';
 import { convertStringToDate } from '../utils/formatTime';
 import headerService from '../services/header.service';
 // ----------------------------------------------------------------------
-
+import noti from '../utils/noti';
 
 export default function Profile() {
   
