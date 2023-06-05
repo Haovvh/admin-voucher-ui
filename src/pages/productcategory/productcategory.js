@@ -159,16 +159,16 @@ export default function ProductCategory() {
     
   };
   const handleClickDelete = (id) => {
-    if(window.confirm("Are you want delete")) {
+    if(window.confirm(noti.CONFIRM_DELETE)) {
       productcategoryService.DeleteProductCategoryById(id).then(
         response => { 
           if (response.data && response.data.success) {
-            alert("Delete Success")
+            alert(noti.DELETE_SUCCESS)
             setSuccess(!success);
           }
           
         }, error => {
-          alert("Dữ liệu đã tồn tại")
+          alert(noti.ERROR)
           setSuccess(!success)
         }
       )
@@ -208,7 +208,7 @@ export default function ProductCategory() {
         productcategoryService.EnablePutProductCategoryById(productCategoryId).then(
           response => {
             if(response.data  && response.data.success) {
-              alert("Enable ProductCategory success");
+              alert(noti.ENABLE_SUCCESS);
               setOpenEnable(false)
               setSuccess(!success)
             }
@@ -222,7 +222,7 @@ export default function ProductCategory() {
         productcategoryService.DisablePutProductCategoryById(productCategoryId).then(
           response => {
             if(response.data  && response.data.success) {
-              alert("Disable ProductCategory success");
+              alert(noti.DISABLE_SUCCESS);
               setOpenEnable(false)
               setSuccess(!success)
             }
@@ -233,7 +233,7 @@ export default function ProductCategory() {
         )        
       }
     } else {
-      alert("Please choose Status");
+      alert(noti.CONFIRM_CHOOSE_STATUS);
     }
   }
 
@@ -263,6 +263,7 @@ export default function ProductCategory() {
         productcategoryService.PostProductCategory(name, description).then(
           response => { 
             if(response.data && response.data.success) {
+              alert(noti.CREATE_SUCCESS)
               setSuccess(true)
               setOpen(false);  
               clearScreen();
@@ -270,7 +271,7 @@ export default function ProductCategory() {
             }
             
           }, error => {
-            alert("Dữ liệu không hợp lệ")
+            alert(noti.ERROR)
             setSuccess(!success)
           }
         )
@@ -278,19 +279,20 @@ export default function ProductCategory() {
         productcategoryService.PutProductCategoryById(name, description, productCategoryId).then(
           response => { 
             if(response.data && response.data.success) {
+              alert(noti.EDIT_SUCCESS)
               setSuccess(true)
               setOpen(false);  
               clearScreen();  
             }
             
           }, error => {
-            alert("Dữ liệu không hợp lệ")
+            alert(noti.ERROR)
             setSuccess(!success)
           }
         )
       }  
     } else {
-      alert("Vui lòng nhập đầy đủ thông tin")
+      alert(noti.MISSING_DATA)
     }
       
       

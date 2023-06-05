@@ -406,13 +406,13 @@ export default function Partner() {
         partnerService.PutPartnerById(partnerId,name,gender,dateOfBirth,address,partnerType, company).then(
           response => {
             if(response.data && response.data.success === true) {
-              alert("Update Success");
+              alert(noti.EDIT_SUCCESS);
               setOpenPartner(false);
               clearScreen();
               setSuccess(!success)
             }
           }, error => {
-            alert("Có lỗi")
+            alert(noti.ERROR)
             setSuccess(!success)
           }
         )
@@ -420,19 +420,19 @@ export default function Partner() {
         partnerService.PutPartnerById(partnerId,name,gender,dateOfBirth,address,partnerType).then(
           response => {
             if(response.data && response.data.success === true) {
-              alert("Update Success");
+              alert(noti.EDIT_SUCCESS);
               setOpenPartner(false);
               clearScreen();
               setSuccess(!success)
             }
           }, error => {
-            alert("Có lỗi")
+            alert(noti.ERROR)
             setSuccess(!success)
           }
         )
       }
     } else {
-      alert("Vui lòng nhập đầy đủ thông tin")
+      alert(noti.MISSING_DATA)
     }    
   }
 

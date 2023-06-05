@@ -405,7 +405,7 @@ export default function Store() {
         storeService.StoreApproveStoreId(storeId).then(
           response => {
             if(response.data && response.status === 200 && response.data.success) {
-              alert("Approve Store success");
+              alert(noti.APPROVE_SUCCESS);
               setOpen(false)
               setSuccess(!success)
             }
@@ -417,7 +417,7 @@ export default function Store() {
         storeService.StoreRejecteStoreId(storeId).then(
           response => {
             if(response.data && response.status === 200 && response.data.success) {
-              alert("Rejecte Store success");
+              alert(noti.REJECTE_SUCCESS);
               setOpen(false)
               setSuccess(!success)
             }
@@ -427,7 +427,7 @@ export default function Store() {
         
       }
     } else {
-      alert("Please choose Status");
+      alert(noti.CONFIRM_CHOOSE_STATUS);
     }
     
     
@@ -439,7 +439,7 @@ export default function Store() {
         storeService.StoreEnableStoreId(storeId).then(
           response => {
             if(response.data && response.status === 200 && response.data.success) {
-              alert("Enable Store success");
+              alert(noti.ENABLE_SUCCESS);
               setOpenEnable(false)
               setSuccess(!success)
             }
@@ -453,7 +453,7 @@ export default function Store() {
         storeService.StoreDisableStoreId(storeId).then(
           response => {
             if(response.data && response.status === 200 && response.data.success) {
-              alert("Disable Store success");
+              alert(noti.DISABLE_SUCCESS);
               setOpenEnable(false)
               setSuccess(!success)
             }
@@ -464,7 +464,7 @@ export default function Store() {
         )        
       }
     } else {
-      alert("Please choose Status");
+      alert(noti.CONFIRM_CHOOSE_STATUS);
     }
   }
 

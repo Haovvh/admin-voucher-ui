@@ -196,16 +196,16 @@ export default function Game() {
     )
   };
   const handleClickDelete = (id) => {
-    if(window.confirm("Are you want delete")) {
+    if(window.confirm(noti.CONFIRM_DELETE)) {
       gameService.DeleteGameById(id).then(
         response => { 
           if (response.data && response.data.success) {
-            alert("Delete Success")
+            alert(noti.DELETE_SUCCESS)
             setSuccess(!success);
           }
           
         }, error => {
-          alert("Dữ liệu đã tồn tại không thể xóa")
+          alert(noti.ERROR)
           setSuccess(!success)
         }
       )
@@ -283,13 +283,13 @@ export default function Game() {
         gameService.PostGame(name, description,instruction, imageUrl).then(
           response =>{
             if(response.data && response.data.success && response.data.data) {
-              alert("Success");
+              alert(noti.CREATE_SUCCESS);
               setOpen(false); 
               clearScreen();
               setSuccess(!success)
             }
           }, error =>{
-            alert("Dữ liệu không phù hợp")
+            alert(noti.ERROR)
     
             setSuccess(!success)
           }
@@ -298,19 +298,19 @@ export default function Game() {
         gameService.PutGameById(name, description, instruction, gameId , imageUrl).then(
           response =>{
             if(response.data && response.data.success && response.data.data) {
-              alert("Update Success");
+              alert(noti.EDIT_SUCCESS);
               setOpen(false); 
               clearScreen();
               setSuccess(!success)
             }
           }, error =>{
-            alert("Dữ liệu không phù hợp")    
+            alert(noti.ERROR)    
             setSuccess(!success)
           }
         )
       }
     } else {
-      alert("Vui lòng nhập đầy đủ thông tin")
+      alert(noti.MISSING_DATA)
     }
     
     
@@ -325,7 +325,7 @@ export default function Game() {
     gameService.GameAll().then(
       response =>{
         if( response.data && response.data.success && response.data.data) {
-          console.log("Game",response.data.data)
+          
           setGames(response.data.data.games)
           setSuccess(false)
         }

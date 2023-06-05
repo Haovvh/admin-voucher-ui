@@ -11,8 +11,7 @@ import noti from '../../../utils/noti';
 
 
 
-export default function LoginForm() {
-  
+export default function LoginForm() {  
 
   const [userName, setUserName] = useState("");
   
@@ -37,11 +36,11 @@ export default function LoginForm() {
           }          
           
         }, error => {
-          alert("Wrong. Please check UserName or Password")
+          alert(noti.WRONG_DATA)
         }
       )
     } else {
-      alert("Please Input Username and Password")
+      alert(noti.MISSING_DATA)
     }
     
     

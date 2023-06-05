@@ -34,9 +34,6 @@ import Label from '../../components/label';
 import Iconify from '../../components/iconify';
 import Scrollbar from '../../components/scrollbar';
 
-
-
-   
 import productcategoryService from '../../services/productcategory.service';
 import productItemService from '../../services/productitem.service';
 import headerService from '../../services/header.service';
@@ -144,7 +141,7 @@ export default function ProductItem() {
         productItemService.PutEnableProductItemById(productItemId).then(
           response => {
             if(response.data  && response.data.success === true) {
-              alert("Enable Success");
+              alert(noti.ENABLE_SUCCESS);
               setOpenEnable(false)
               setSuccess(!success)
               setIsEnable("")
@@ -158,7 +155,7 @@ export default function ProductItem() {
         productItemService.PutDisableProductItemById(productItemId).then(
           response => {
             if(response.data  && response.data.success === true) {
-              alert("Disable Success");
+              alert(noti.DISABLE_SUCCESS);
               setOpenEnable(false)
               setSuccess(!success)
               setIsEnable("")
@@ -170,7 +167,7 @@ export default function ProductItem() {
         )        
       }
     } else {
-      alert("Please choose Status");
+      alert(noti.CONFIRM_CHOOSE_STATUS);
     }
   }
 
@@ -247,7 +244,7 @@ export default function ProductItem() {
     productItemService.ProductItemAll().then(
       response =>{
         if(response.data  && response.data.success) {
-          console.log(response.data.data)
+          console.log(response.data.data.productItems)
           setProductItems(response.data.data.productItems)
         }
       }, error => {

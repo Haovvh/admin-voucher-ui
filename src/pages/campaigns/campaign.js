@@ -48,8 +48,10 @@ import CampaignService from '../../services/campaign.service';
 import { UserListHead, UserListToolbar } from '../../sections/@dashboard/user';
 // mock
 
+import ViewCampaign from './view.campaign';
 import headerService from '../../services/header.service';
 import partnerService from '../../services/partner.service';
+import noti from '../../utils/noti';
 
 // ----------------------------------------------------------------------
 
@@ -134,24 +136,7 @@ export default function Campaign() {
     setEdit(true)
     
   };
-  const handleClickDelete = (id) => {
-    if(window.confirm(`Are you want delete `)) {
-      CampaignService.DeleteCampaignById(id).then(
-        response => { 
-          if (response.data && response.data.success) {
-            alert("Delete Success")
-            setSuccess(!success);
-          }
-          
-        }, error => {
-          alert("Có lỗi")
-          setSuccess(!success)
-        }
-      )
-    }
-    
-  };
-
+  
   const handleClickEditEnable = (id) =>{    
     setCampaignId(id);
     setOpenEnable(true)
@@ -174,12 +159,12 @@ export default function Campaign() {
         CampaignService.CampaignEnableByCampaignId(campaignId).then(
           response => {
             if(response.data  && response.data.success) {
-              alert("Enable Campaign success");
+              alert(noti.ENABLE_SUCCESS);
               setOpenEnable(false)
               setSuccess(!success)
             }
           } , error => {
-            alert("Có lỗi")
+            alert(noti.ERROR)
             setSuccess(!success)
           }
         )
@@ -189,19 +174,19 @@ export default function Campaign() {
         CampaignService.CampaignDisableByCampaignId(campaignId).then(
           response => {
             if(response.data  && response.data.success) {
-              alert("Disable Campaign success");
+              alert(noti.DISABLE_SUCCESS);
               setOpenEnable(false)
               setSuccess(!success)
             }
             
           }, error => {
-            alert("Có lỗi")
+            alert(noti.ERROR)
             setSuccess(!success)
           }
         )        
       }
     } else {
-      alert("Please choose Status");
+      alert(noti.CONFIRM_CHOOSE_STATUS);
     }
   }
 
@@ -243,9 +228,7 @@ export default function Campaign() {
   useEffect(() =>{
     CampaignService.CampaignAll().then(
       response =>{
-        if(response.data  && response.data.success) {  
-          const temp =  response.data.data;    
-          
+        if(response.data  && response.data.success) {          
           setCampaigns(response.data.data.listCampaign)          
         }
       }, error => {
@@ -253,7 +236,7 @@ export default function Campaign() {
           const token = headerService.refreshToken();
           partnerService.refreshToken(token).then(
             response => {
-              console.log(response.data && response.data.success === true)
+              
               if(response.data && response.data.success === true) {                
                 localStorage.setItem("token", JSON.stringify(response.data.data));
                 setSuccess(!success)
@@ -274,12 +257,16 @@ export default function Campaign() {
       <Helmet>
         <title> Campaigns  </title>
       </Helmet>
+      {edit === true && campaignId !== "" ? <ViewCampaign editDisplay={edit} campaignIdText={campaignId}/> : 
+      <>
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
           Campaigns
           </Typography>
-          
+          <Button onClick={handleClickNew} variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
+            New Campaign
+          </Button>
         </Stack>
 
         <Card>
@@ -299,7 +286,7 @@ export default function Campaign() {
                 />
                 <TableBody>
                   {filteredDatas.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, name, description, startDate, endDate, gameId, gameName, status, storeId, storeName, isEnable } = row;
+                    const { id, name, description, startDate, endDate,  gameName, status,   isEnable } = row;
                     const selectedUser = selected.indexOf(name) !== -1;
 
                     return (
@@ -326,11 +313,8 @@ export default function Campaign() {
 
                         <TableCell align="right">                        
                           <IconButton size="large" color="inherit" onClick={()=>handleClickEdit(id)}>
-                          <Iconify icon={'eva:edit-fill'}  sx={{ mr: 2 }} />                          
-                          </IconButton>
-                          <IconButton size="large" color="inherit" onClick={()=>handleClickDelete(id)}>
-                          <Iconify  icon={'eva:trash-2-outline'} color="red" sx={{ mr: 2 }} />                        
-                          </IconButton>
+                          <Iconify icon={'ep:view'}  sx={{ mr: 2 }} />                          
+                          </IconButton>                          
                         </TableCell>
                       </TableRow>
                     );
@@ -413,6 +397,9 @@ export default function Campaign() {
           <Button onClick={handleClickSubmitEnable}>Submit</Button>
         </DialogActions>
       </Dialog>
+      </>
+    
+      }
       </>
   );
 }

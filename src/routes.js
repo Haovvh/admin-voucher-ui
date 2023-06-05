@@ -14,6 +14,7 @@ import ProductItem from './pages/productitem/productitem';
 import ProductCategory from './pages/productcategory/productcategory';
 import Partner from './pages/partners/Partners';
 import User from './pages/user/Users';
+import Report from './pages/report/report';
 import Campaign from './pages/campaigns/campaign';
 import headerService from './services/header.service';
 import PageRole from './pages/PageRole';
@@ -30,6 +31,7 @@ export default function Router() {
       children: [
         { element: <Navigate to="/app" />, index: true },
         { path: 'app', element: (isUser)? <DashboardAppPage /> :<PageRole />},
+        { path: 'report', element: (isUser)? <Report /> :<PageRole /> },
         { path: 'game', element: (isUser)? <Game /> :<PageRole /> },
         { path: 'campaign', element: (isUser)? <Campaign /> :<PageRole/>},
         { path: 'partner', element: (isUser)? <Partner /> :<PageRole/>},
