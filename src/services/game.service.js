@@ -54,9 +54,7 @@ const PostGame = (name, description, instruction, imageUrl, isEnable = true) => 
 })
 );
 
-
-export default  {
-
+const GameService = {
   GameAll,
   GameAvailable,
   GetGameById,
@@ -66,3 +64,5 @@ export default  {
   PutDisableGameById,
   PutEnableGameById
 }
+
+export default  GameService;

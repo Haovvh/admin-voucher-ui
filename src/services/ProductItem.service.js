@@ -41,7 +41,7 @@ import headerService from "./header.service";
   );
   
   
-const productItemService = {
+const ProductItemService = {
   ProductItemAll,
     ProductItemAvailable,
     GetProductItemById,
@@ -52,4 +52,4 @@ const productItemService = {
 }
 
 
-export default productItemService;
+export default ProductItemService;

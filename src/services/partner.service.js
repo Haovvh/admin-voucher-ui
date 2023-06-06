@@ -26,10 +26,10 @@ const PutPartnerById = (partnerId, name, gender, dateOfBirth, address, partnerTy
     headers: headerService.accessToken() 
   })
 );
-const partnerService = {
+const PartnerService = {
   partnerAll,
   GetPartnerById,
   PutPartnerById
 }
 
-export default  partnerService
+export default  PartnerService

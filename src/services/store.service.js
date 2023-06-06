@@ -72,11 +72,7 @@ const PutStoreByAdmin = (storeId, name, description, address, openTime, closeTim
   })
 );
 
-
-
-
-
-export default  {
+const StoreService = {
   GetStoreById,
   StoreAll,
   StoreApproveStoreId,
@@ -88,3 +84,8 @@ export default  {
   StoreDisableStoreId,
   PutStoreByAdmin
 }
+
+
+
+
+export default  StoreService;

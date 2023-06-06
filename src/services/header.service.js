@@ -45,7 +45,7 @@ const userName = () => {
 const GetUser = () => (
   JSON.parse(localStorage.getItem('user'))
 );
-const headerService = {
+const HeaderService = {
   accessToken,
   refreshToken,
   userName,
@@ -53,4 +53,4 @@ const headerService = {
   accessTokenImage
 }
 
-export default headerService
+export default HeaderService

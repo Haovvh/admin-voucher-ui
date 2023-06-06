@@ -56,9 +56,8 @@ const ProductCategoryAll = () => (
       headers: headerService.accessToken()
   })
   );
-
-  export default {
-    PostProductCategory,
+const ProductCategoryService = {
+  PostProductCategory,
     ProductCategoryAll,
     ProductCategoryAvailable,
     GetProductCategoryById,
@@ -66,4 +65,6 @@ const ProductCategoryAll = () => (
     DisablePutProductCategoryById,
     EnablePutProductCategoryById,
     DeleteProductCategoryById
-  }
+}
+
+  export default ProductCategoryService 

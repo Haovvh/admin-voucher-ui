@@ -57,9 +57,7 @@ const endUserAll = () => (
 );
 
 
-
-
-export default  {
+const AdminService = {
   Login, 
   Logout, 
   refreshToken,   
@@ -69,3 +67,6 @@ export default  {
   PutAdminUpdate,
   AdminInfo
 }
+
+
+export default  AdminService

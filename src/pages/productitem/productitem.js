@@ -35,7 +35,8 @@ import Iconify from '../../components/iconify';
 import Scrollbar from '../../components/scrollbar';
 
 import productcategoryService from '../../services/productcategory.service';
-import productItemService from '../../services/productitem.service';
+import productItemService from '../../services/productitem.service'
+
 import headerService from '../../services/header.service';
 import partnerService from '../../services/partner.service';
 import noti from '../../utils/noti';

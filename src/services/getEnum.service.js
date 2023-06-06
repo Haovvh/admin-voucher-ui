@@ -21,12 +21,13 @@ const getAddressWardDistrictId = (DistrictId="001") =>
      axios.get(`${process.env.REACT_APP_API_URL}/Address/Ward/DistrictId?DistrictId=${DistrictId}`)
 
 
-
-export default {
-    getValuesGender,
+const EnumService = {
+     getValuesGender,
     getValuesPartnerType,
     getValuesUserType,
     getAddressDistrictProvineId,
     getAddressProvines,
     getAddressWardDistrictId
 }
+
+export default EnumService;

@@ -10,9 +10,9 @@ const ImageUpload = (file) => (
 })
 );
 
-const imageService = {
+const ImageService = {
   ImageUpload
 }
 
 
-export default  imageService;
+export default  ImageService;
