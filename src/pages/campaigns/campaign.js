@@ -47,10 +47,9 @@ import CampaignService from '../../services/campaign.service';
 // sections
 import { UserListHead, UserListToolbar } from '../../sections/@dashboard/user';
 // mock
-
+import AdminService from '../../services/admin.service';
 import ViewCampaign from './view.campaign';
 import headerService from '../../services/header.service';
-import partnerService from '../../services/partner.service';
 import noti from '../../utils/noti';
 
 // ----------------------------------------------------------------------
@@ -234,7 +233,7 @@ export default function Campaign() {
       }, error => {
         if(error.response && error.response.status === 401) {
           const token = headerService.refreshToken();
-          partnerService.refreshToken(token).then(
+          AdminService.refreshToken(token).then(
             response => {
               
               if(response.data && response.data.success === true) {                

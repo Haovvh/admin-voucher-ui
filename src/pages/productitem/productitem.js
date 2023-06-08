@@ -34,15 +34,14 @@ import Label from '../../components/label';
 import Iconify from '../../components/iconify';
 import Scrollbar from '../../components/scrollbar';
 
-
-import productcategoryService from '../../services/productcategory.service';
 import productItemService from '../../services/product.item.service'
 
 import headerService from '../../services/header.service';
-import partnerService from '../../services/partner.service';
+import AdminService from '../../services/admin.service';
 import noti from '../../utils/noti';
 // sections
 import { UserListHead, UserListToolbar } from '../../sections/@dashboard/user';
+
 // mock
 
 
@@ -116,8 +115,6 @@ export default function ProductItem() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const [productCategoryId, setProductCategoryId] = useState("");
-
-  const [productCategories, setProductCategories] = useState("");
 
   const [urlImage, setUrlImage] = useState("");
 
@@ -253,7 +250,7 @@ export default function ProductItem() {
         if(error.response && error.response.status === 401) {
           console.log(error.response)
           const token = headerService.refreshToken();
-          partnerService.refreshToken(token).then(
+          AdminService.refreshToken(token).then(
             response => {
               console.log(response.data)
               if(response.data && response.data.success === true) {                
