@@ -3,10 +3,6 @@ import React,{ useState, useEffect } from 'react';
 
 import { Helmet } from 'react-helmet-async';
 import { Grid, Container } from '@mui/material';
-import {
-  AppWidgetSummary
-  
-} from '../../sections/@dashboard/app';
 
 import AppWidgetSummaryOne from '../../sections/@dashboard/app/AppWidgetSummaryOne';
 import AppWidgetSummaryTwo from '../../sections/@dashboard/app/AppWidgetSummaryTwo';
