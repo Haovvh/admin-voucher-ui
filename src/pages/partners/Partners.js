@@ -489,7 +489,9 @@ export default function Partner() {
 
   const isNotFound = !filteredDatas.length && !!filterName;
   useEffect(() =>{
-    
+    if(!headerService.GetUser() || headerService.refreshToken() === ""){
+      window.location.assign('/login')
+    }
     partnerService.partnerAll().then(
       response => {
         if(response && response.status === 200 && response.data.success && response.data.data) {

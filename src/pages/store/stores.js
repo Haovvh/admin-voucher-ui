@@ -51,7 +51,7 @@ const TABLE_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
   { id: 'address', label: 'Address', alignRight: false },
   { id: 'description', label: 'Description', alignRight: false },  
-  { id: 'openTime', label: 'openTime', alignRight: false },
+  { id: 'openTime', label: 'OpenTime', alignRight: false },
   { id: 'closeTime', label: 'CloseTime', alignRight: false },
   { id: 'isApproved', label: 'IsApproved', alignRight: false },
   { id: 'isEnable', label: 'IsEnable', alignRight: false },
@@ -480,6 +480,9 @@ export default function Store() {
 
   const isNotFound = !filteredDatas.length && !!filterName;
   useEffect(()=>{
+    if(!headerService.GetUser() || headerService.refreshToken() === ""){
+      window.location.assign('/login')
+    }
     getService.getAddressProvines().then(
       response =>{
         if(response.data && response.data.success && response.data.data){

@@ -27,8 +27,6 @@ export default function AccountPopover() {
   
 
   const handleClickLogout = () =>{
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
     window.location.assign('/login')
   }
   const handleClose = () => {
@@ -36,8 +34,12 @@ export default function AccountPopover() {
     setOpen(null);
   };
   useEffect(() =>{
+    if(!headerService.GetUser() || headerService.refreshToken() === ""){
+      window.location.assign('/login')
+    } else {
+      setUserInfo(headerService.GetUser())
+    }
     
-    setUserInfo(headerService.GetUser())
     
   }, [])
 

@@ -32,7 +32,7 @@ const StyledAccount = styled('div')(({ theme }) => ({
 
 Nav.propTypes = {
   openNav: PropTypes.bool,
-  onCloseNav: PropTypes.func,
+  onCloseNav: PropTypes.func
 };
 
 export default function Nav({ openNav, onCloseNav }) {
@@ -57,9 +57,7 @@ export default function Nav({ openNav, onCloseNav }) {
         '& .simplebar-content': { height: 1, display: 'flex', flexDirection: 'column' },
       }}
     >
-      <Box sx={{ px: 2.5, py: 3, display: 'inline-flex' }}>
-        <Logo />
-      </Box>
+      <br/>
 
       <Box sx={{ mb: 5, mx: 2.5 }}>
         <Link underline="none">
@@ -109,7 +107,7 @@ export default function Nav({ openNav, onCloseNav }) {
             sx: {
               width: NAV_WIDTH,
               background:'blue',
-              bgcolor: 'background.default',
+              bgcolor: '#FAEBD7',
               borderRightStyle: 'dashed',
             },
           }}

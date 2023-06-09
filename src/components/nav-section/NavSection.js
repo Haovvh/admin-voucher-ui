@@ -41,6 +41,7 @@ function NavItem({ item }) {
           color: 'text.primary',
           bgcolor: 'action.selected',
           fontWeight: 'fontWeightBold',
+          
         },
       }}
     >

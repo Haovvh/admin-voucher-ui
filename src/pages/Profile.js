@@ -194,80 +194,81 @@ export default function Profile() {
     }
   }  
   useEffect (()=>{    
-
-     getService.getValuesGender().then(
-      response =>{
-        if(response.data && response.status === 200) {
-          const arrayGender  = response.data.data.genderValue;        
-             
-          setGenders(arrayGender)
-        }
-        
-      }, error => {
-        console.log(error)
-      }
-    )
-    
-    
-    getService.getAddressProvines().then(
-      response =>{
-        if(response.data && response.status === 200){
-          setProvines(response.data.data.provines);          
-        }
-      }
-    )
-    adminService.AdminInfo().then(
-      response => {
-        if (response.data && response.data.success === true) {
-          const temp = response.data.data
-          console.log(temp)
-          setName(temp.name)
-          setPosition(temp.position)
-          setDepartment(temp.department)
-          setGender(temp.gender)
-          setDateBirthDate(temp.dateOfBirth)
-          setDateOfBirthText(convertStringToDate(temp.dateOfBirth))
-          setDistrictId(temp.address.ward.district.id)
-          setProvineId(temp.address.ward.province.id )
+    if(!headerService.GetUser() || headerService.refreshToken() === ""){
+      window.location.assign('/login')
+    } else {
+      getService.getValuesGender().then(
+        response =>{
+          if(response.data && response.status === 200) {
+            const arrayGender  = response.data.data.genderValue;        
+              
+            setGenders(arrayGender)
+          }
           
-          getService.getAddressDistrictProvineId(temp.address.ward.province.id).then(
-            response =>{
-              if(response.status === 200 && response.data.data) {
-                setDistricts(response.data.data.districts);
-                setDistrictId(temp.address.ward.district.id)
-                getService.getAddressWardDistrictId(temp.address.ward.district.id).then(
-                  response =>{
-                    if(response.status === 200 && response.data.data) {                      
-                      setWards(response.data.data.wards);
-                      setAddress({
-                        wardId:temp.address.ward.id,
-                        street: temp.address.street
-                      })
-                    }        
-                  }
-                )
-              } 
-            }
-          )
+        }, error => {
+          console.log(error)
         }
-      }, error =>{
-        if(error.response && error.response.status === 401) {
-          const token = headerService.refreshToken();
-          adminService.refreshToken(token).then(
-            response=>{
-              if(response.data && response.data.success === true) {
-                console.log(response.data)
-                localStorage.setItem("token", JSON.stringify(response.data.data));
-                setSuccess(!success)
+      )
+          
+      getService.getAddressProvines().then(
+        response =>{
+          if(response.data && response.status === 200){
+            setProvines(response.data.data.provines);          
+          }
+        }
+      )
+      adminService.AdminInfo().then(
+        response => {
+          if (response.data && response.data.success === true) {
+            const temp = response.data.data
+            console.log(temp)
+            setName(temp.name)
+            setPosition(temp.position)
+            setDepartment(temp.department)
+            setGender(temp.gender)
+            setDateBirthDate(temp.dateOfBirth)
+            setDateOfBirthText(convertStringToDate(temp.dateOfBirth))
+            setDistrictId(temp.address.ward.district.id)
+            setProvineId(temp.address.ward.province.id )
+            
+            getService.getAddressDistrictProvineId(temp.address.ward.province.id).then(
+              response =>{
+                if(response.status === 200 && response.data.data) {
+                  setDistricts(response.data.data.districts);
+                  setDistrictId(temp.address.ward.district.id)
+                  getService.getAddressWardDistrictId(temp.address.ward.district.id).then(
+                    response =>{
+                      if(response.status === 200 && response.data.data) {                      
+                        setWards(response.data.data.wards);
+                        setAddress({
+                          wardId:temp.address.ward.id,
+                          street: temp.address.street
+                        })
+                      }        
+                    }
+                  )
+                } 
               }
-            }
-          )
+            )
+          }
+        }, error =>{
+          if(error.response && error.response.status === 401) {
+            const token = headerService.refreshToken();
+            adminService.refreshToken(token).then(
+              response=>{
+                if(response.data && response.data.success === true) {
+                  console.log(response.data)
+                  localStorage.setItem("token", JSON.stringify(response.data.data));
+                  setSuccess(!success)
+                }
+              }
+            )
+            
+          }
           
         }
-        
-      }
-    )
-    
+      )
+    }
 
   },[success])
 
@@ -279,7 +280,7 @@ export default function Profile() {
       <Box 
         
         sx={{ width: '50%' }}>
-    <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>      
+        <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>      
  
       <Grid item xs={7}>
       <Label>FullName</Label>

@@ -16,42 +16,41 @@ import Partner from './pages/partners/Partners';
 import User from './pages/user/Users';
 import Report from './pages/report/report';
 import Campaign from './pages/campaigns/campaign';
-import headerService from './services/header.service';
-import PageRole from './pages/PageRole';
+
 
 
 // ----------------------------------------------------------------------
 
 export default function Router() {
-  const isUser = (headerService.GetUser() && headerService.refreshToken() !== "")
+  
   const routes = useRoutes([
     {
       path: '',
-      element: (isUser)? <DashboardLayout /> : <SimpleLayout />,
+      element:  <DashboardLayout /> ,
       children: [
-        { element: <Navigate to="/app" />, index: true },
-        { path: 'app', element: (isUser)? <DashboardAppPage /> :<PageRole />},
-        { path: 'report', element: (isUser)? <Report /> :<PageRole /> },
-        { path: 'game', element: (isUser)? <Game /> :<PageRole /> },
-        { path: 'campaign', element: (isUser)? <Campaign /> :<PageRole/>},
-        { path: 'partner', element: (isUser)? <Partner /> :<PageRole/>},
-        { path: 'store', element: (isUser)? <Store /> :<PageRole/>},
-        { path: 'productcategory', element: (isUser)? <ProductCategory /> :<PageRole/>},
-        { path: 'productitem', element: (isUser)? <ProductItem /> :<PageRole/>},
-        { path: 'profile', element: (isUser)? <Profile /> :<PageRole/>},
-        { path: 'user', element: (isUser)? <User /> :<PageRole/>},
+        { element: <Navigate to="app" />, index: true },
+        { path: 'app', element:  <DashboardAppPage /> },
+        { path: 'report', element:  <Report />  },
+        { path: 'game', element:  <Game />  },
+        { path: 'campaign', element:  <Campaign /> },
+        { path: 'partner', element:  <Partner /> },
+        { path: 'store', element:  <Store /> },
+        { path: 'productcategory', element:  <ProductCategory /> },
+        { path: 'productitem', element:  <ProductItem /> },
+        { path: 'profile', element:  <Profile /> },
+        { path: 'user', element:  <User /> },
         { path: 'logout', element:  <Logout /> },
         
       ],
     },
     {
-      path: 'login',
+      path: 'login',  
       element: <Login />,
     }, 
     {
       element: <SimpleLayout />,
       children: [
-        { element: <Navigate to="/dashboard/app" />, index: true },
+        { element: <Navigate to="app" />, index: true },
         { path: '404', element: <Page404 /> },
         { path: '*', element: <Navigate to="/404" /> },
       ],

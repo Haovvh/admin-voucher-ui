@@ -225,6 +225,9 @@ export default function Campaign() {
 
   const isNotFound = !filteredDatas.length && !!filterName;
   useEffect(() =>{
+    if(!headerService.GetUser() || headerService.refreshToken() === ""){
+      window.location.assign('/login')
+    }
     CampaignService.CampaignAll().then(
       response =>{
         if(response.data  && response.data.success) {          

@@ -4,16 +4,18 @@ import { useEffect } from 'react';
 // @mui
 import { useTheme } from '@mui/material/styles';
 import { Grid, Container, Typography } from '@mui/material';
+import headerService from '../services/header.service';
 // components
-import accountSetting from '../services/header.service'
 
 
 // ----------------------------------------------------------------------
 
 export default function DashboardAppPage() {
   useEffect(()=>{
-    
-  })
+    if(!headerService.GetUser() || headerService.refreshToken() === ""){
+      window.location.assign('/login')
+    }
+  },[])
 
   return (
     <>

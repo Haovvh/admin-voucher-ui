@@ -9,8 +9,9 @@ export default function AppWidgetSummaryThree({ title, isActive, total, icon, co
       sx={{
         py:2,
         height: '150px',
+        width:'100%',
         boxShadow: 0,        
-        textAlign: 'center',
+        textAlign: 'left',
         color: (theme) => theme.palette[color].darker,
         bgcolor: (theme) => theme.palette[color].lighter,
         ...sx,
@@ -19,15 +20,15 @@ export default function AppWidgetSummaryThree({ title, isActive, total, icon, co
     >  
     {isActive && Array.isArray(isActive) && isActive.map((option) => {
         return (
-          <Row >
-            <Col md={{ span: 1, offset: 1 }}><h5>{option.name}</h5> </Col>
-            <Col md={{ span: 1, offset: 6 }}><h5>{option.value}</h5></Col>
+          <Row key={option.name}>
+            <Col   md={{ span: 8, offset: 1 }} >{option.name} </Col>
+            <Col >{option.value}</Col>
           </Row>          
         )
       })}
-      <Row>
-      <Col md={{ span: 1, offset: 1 }}><h5>{title.name}</h5> </Col>
-      <Col md={{ span: 1, offset: 6 }}><h5>{title.value}</h5></Col>
+      <Row >
+      <Col   md={{ span: 8, offset: 1 }} ><h4 >{title.name}</h4> </Col>
+      <Col  ><h4 >{title.value}</h4></Col>
       </Row>
     </Card>
     

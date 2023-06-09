@@ -9,9 +9,11 @@ import {
 } from '../../sections/@dashboard/app';
 
 import AppWidgetSummaryOne from '../../sections/@dashboard/app/AppWidgetSummaryOne';
+import AppWidgetSummaryTwo from '../../sections/@dashboard/app/AppWidgetSummaryTwo';
 import AppWidgetSummaryThree from '../../sections/@dashboard/app/AppWidgetSummaryThree';
 import dashboardService from '../../services/dashboard.service';
-
+import headerService from '../../services/header.service';
+import adminService from '../../services/admin.service';
 // ----------------------------------------------------------------------
 
 
@@ -19,39 +21,61 @@ export default function Report() {
 
   const [partner, setPartner] = useState([])
   const [partnerAll, setPartnerAll] = useState({});
-  
+  const [success, setSuccess] = useState(false)
   const [store, setStore] = useState([])
   const [storeAll, setStoreAll] = useState({});
 
   const [endUser, setEndUser] = useState([])
   const [endUserAll, setEndUserAll] = useState({});
 
-  const [campaign, setCampaign] = useState(0)
-  const [category, setCategory] = useState(0);
+  const [campaign, setCampaign] = useState({})
+  const [category, setCategory] = useState({});
+  const [productItem, setProductItem] = useState({
+
+  });
+  const [game, setGame] = useState([]);
+  const [status, setStatus] = useState([]);
+  const [itemCategory, setItemCategory] = useState([]);
   useEffect(() =>{
+    if(!headerService.GetUser() || headerService.refreshToken() === ""){
+      window.location.assign('/login')
+    }
     dashboardService.PartnerCount().then(
       response => {
         if(response.data && response.data.success) {
           const temp = response.data.data
-          console.log(temp)
           setPartner([{
             name: "Verified",
             value: temp.verified
           }])
           setPartnerAll({
-            name: "Partner",
+            name: "Total Partner",
             value: temp.all
           })
         }
+      }, error =>{
+        if(error.response && error.response.status === 401) {
+          const token = headerService.refreshToken();
+          adminService.refreshToken(token).then(
+            response=>{
+              if(response.data && response.data.success === true) {
+                console.log(response.data)
+                localStorage.setItem("token", JSON.stringify(response.data.data));
+                setSuccess(!success)
+              }
+            }
+          )
+          
+        }
+        
       }
     )
     dashboardService.StoreCount().then(
       response => {
         if(response.data && response.data.success) {
           const temp = response.data.data
-          console.log(temp)
           setStoreAll({
-            name: "Store",
+            name: "Total Store",
             value: temp.all})
           setStore([{
             name: "NeedApproved",
@@ -70,13 +94,12 @@ export default function Report() {
       response => {
         if(response.data && response.data.success) {
           const temp = response.data.data
-          console.log(temp)
           setEndUser([{
             name: "Verified",
             value: temp.verified
           }])
           setEndUserAll({
-            name: "EndUser",
+            name: "Total EndUser",
             value: temp.all
           })
           
@@ -87,8 +110,10 @@ export default function Report() {
       response => {
         if(response.data && response.data.success) {
           const temp = response.data.data
-          console.log(temp)
-          setCampaign(temp.all)
+          setCampaign({
+            name: 'Total Campaign',
+            value: temp.all
+          })
         }
       }
     )
@@ -97,6 +122,7 @@ export default function Report() {
         if(response.data && response.data.success) {
           const temp = response.data.data
           console.log(temp)
+          setStatus(temp.campaignCount)
           
         }
       }
@@ -106,7 +132,7 @@ export default function Report() {
         if(response.data && response.data.success) {
           const temp = response.data.data
           console.log(temp)
-          
+          setGame(temp.campaignCount)
         }
       }
     )
@@ -114,8 +140,10 @@ export default function Report() {
       response => {
         if(response.data && response.data.success) {
           const temp = response.data.data
-          console.log(temp)
-          setCategory(temp.nCategory)
+          setCategory({
+            name:"Total Category",
+            value: temp.nCategory
+          })
           
         }
       }
@@ -124,7 +152,10 @@ export default function Report() {
       response => {
         if(response.data && response.data.success) {
           const temp = response.data.data
-          console.log(temp)
+          setProductItem({
+            name:"Total Item",
+            value: temp.nItem
+          })
           
         }
       }
@@ -134,7 +165,7 @@ export default function Report() {
         if(response.data && response.data.success) {
           const temp = response.data.data
           console.log(temp)
-          
+          setItemCategory(temp.nItemByCategory)
         }
       }
     )
@@ -142,7 +173,7 @@ export default function Report() {
 
     
     
-  },[])
+  },[success])
 
   return (
     <>
@@ -161,22 +192,26 @@ export default function Report() {
           <Grid item xs={12} sm={6} md={4}>
             <AppWidgetSummaryThree title={storeAll}  isActive={store}  color="info"/>
           </Grid>
+          <Grid item xs={12} sm={6} md={4}>
+            <AppWidgetSummaryThree title={campaign}    color="info"/>
+          </Grid>
+          <Grid item xs={12} sm={6} md={4}>
+            <AppWidgetSummaryThree title={category}    color="info"/>
+          </Grid>
+          <Grid item xs={12} sm={6} md={4}>
+            <AppWidgetSummaryThree title={productItem}    color="info"/>
+          </Grid>
+          <Grid item xs={12} sm={6} md={4}>
+            <AppWidgetSummaryOne title="Campaign Status" isActive={status}    color="info"/>
+          </Grid>
+          <Grid item xs={12} sm={6} md={4}>
+            <AppWidgetSummaryTwo title="Games" isActive={game}    color="info"/>
+          </Grid>
+          <Grid item xs={12} sm={6} md={4}>
+            <AppWidgetSummaryTwo title="Product Items" isActive={itemCategory}    color="info"/>
+          </Grid>
           
 
-          <Grid item xs={12} sm={6} md={4}>
-            <AppWidgetSummary title="Campaign" total={campaign} color="info"  />
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <AppWidgetSummary title="ProductCategory" total={category} color="info"  />
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={4}>
-            <AppWidgetSummary title="Item Orders" total={1723315} color="warning"  />
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={4}>
-            <AppWidgetSummary title="Bug Reports" total={234} color="error"  />
-          </Grid>
 
         </Grid>
       </Container>

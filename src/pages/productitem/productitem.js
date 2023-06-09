@@ -239,7 +239,9 @@ export default function ProductItem() {
 
   const isNotFound = !filteredDatas.length && !!filterName;
   useEffect(() =>{
-    
+    if(!headerService.GetUser() || headerService.refreshToken() === ""){
+      window.location.assign('/login')
+    }
     productItemService.ProductItemAll().then(
       response =>{
         if(response.data  && response.data.success) {

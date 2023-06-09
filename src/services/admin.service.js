@@ -8,8 +8,8 @@ const Login = (userName, password) => (
       })
 );
 const Logout = () => (
-  localStorage.removeItem("user")
-);
+  localStorage.clear()
+)
 
 const refreshToken = (token) => (
   

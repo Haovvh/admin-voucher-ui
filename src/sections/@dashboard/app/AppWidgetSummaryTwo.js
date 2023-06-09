@@ -2,7 +2,7 @@
 import { Card } from '@mui/material';
 import { Col,Row } from 'react-bootstrap';
 
-export default function AppWidgetSummaryOne({ title, isActive, total, icon, color = 'primary', sx, ...other }) {
+export default function AppWidgetSummaryTwo({ title, isActive, total, icon, color = 'primary', sx, ...other }) {
   
   return (
     <Card 
@@ -18,24 +18,14 @@ export default function AppWidgetSummaryOne({ title, isActive, total, icon, colo
       {...other}
     >  
     <Row >
-            <Col  md={{ span: 8, offset: 1 }}>
-              <Row>
-              <h5>{title}</h5>
-              </Row>
-               
-              </Col>
+            <Col  md={{ span: 8, offset: 1 }}><h5>{title}</h5> </Col>
             
           </Row>
     {isActive && Array.isArray(isActive) && isActive.map((option) => {
         return (
           <Row key={option.item1}>
-            <Col  md={{ span: 8, offset: 1 }}>
-              <Row>
-              <h5>{option.item1}</h5>
-              </Row>
-               
-              </Col>
-            <Col  ><h5>{option.item2}</h5></Col>
+            <Col  md={{ span: 8, offset: 1 }}><h5>{option.item2}</h5> </Col>
+            <Col  ><h5>{option.item3}</h5></Col>
           </Row>          
         )
       })}

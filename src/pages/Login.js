@@ -44,7 +44,7 @@ const StyledContent = styled('div')(({ theme }) => ({
 export default function Login() {
   const mdUp = useResponsive('up', 'md');
   useEffect(()=>{
-    account.Logout();
+    localStorage.clear();
   })
   return (
     <>

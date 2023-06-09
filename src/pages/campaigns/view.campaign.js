@@ -139,6 +139,9 @@ export default function ViewCampaign(props) {
 
 
   useEffect(() =>{
+    if(!headerService.GetUser() || headerService.refreshToken() === ""){
+      window.location.assign('/login')
+    }
     if(props.editDisplay === true && props.campaignIdText) {
       
       CampaignService.GetCampaignById(props.campaignIdText).then(

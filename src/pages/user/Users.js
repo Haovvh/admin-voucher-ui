@@ -1,6 +1,5 @@
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
-import { sentenceCase } from 'change-case';
 
 import { useState, useEffect } from 'react';
 // @mui
@@ -317,6 +316,9 @@ export default function User() {
 
   const isNotFound = !filteredDatas.length && !!filterName;
   useEffect(() =>{
+    if(!headerService.GetUser() || headerService.refreshToken() === ""){
+      window.location.assign('/login')
+    }
     getService.getValuesGender().then(
       response =>{
         if(response.data && response.status === 200) {
